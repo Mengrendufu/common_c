@@ -1,4 +1,5 @@
 /* dependencies ------------------------------------------------------------*/
+#include "stdio.h"
 #include "stdint.h"
 #include "jitter_detection.h"
 /* dependencies ------------------------------------------------------------*/

@@ -19,6 +19,7 @@
 /* main --------------------------------------------------------------------*/
 int main(int argc, char* argv[]) {
     /* opening titles ------------------------------------------------------*/
+    (void)argv;
     printf("Hello, world!\r\n");
     printf("InputArgsCount: %d\r\n", argc);
     /* opening titles ------------------------------------------------------*/
