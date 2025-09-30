@@ -24,11 +24,9 @@ OUTPUT := output
 ifeq (,$(findstring Git,$(SHELL))) # powershell
 MD	    := -powershell mkdir -Force
 RM      := -powershell Remove-Item -Recurse -Force
-FIXPATH  = $(subst /,\,$1)
 else # gitbash
 MD	    := mkdir -p
 RM      := rm -rf
-FIXPATH  = $1
 endif
 # shell specific settings -----------------------------------------------------
 
@@ -41,7 +39,7 @@ OBJECTS	 := $(patsubst %.c, $(OUTPUT)/%.o, $(SOURCES))
 
 # executable file -------------------------------------------------------------
 MAIN := main.exe
-OUTPUTMAIN := $(call FIXPATH,$(OUTPUT)/$(MAIN))
+OUTPUTMAIN := $(OUTPUT)/$(MAIN)
 # executable file -------------------------------------------------------------
 
 .PHONY: all clean show run
@@ -60,7 +58,7 @@ $(OUTPUT):
 # .o compiling ----------------------------------------------------------------
 $(OUTPUT)/%.o: %.c | $(OUTPUT)
 	@echo "Compiling $< -> $@"
-	@$(MD) $(call FIXPATH,$(dir $@))
+	@$(MD) $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 # .o compiling ----------------------------------------------------------------
 
@@ -75,7 +73,7 @@ run: all
 
 clean:
 	@echo "Cleaning output directory: $(OUTPUT)"
-	$(RM) $(call FIXPATH,$(OUTPUT))
+	$(RM) $(OUTPUT)
 
 # DEBUG -----------------------------------------------------------------------
 show:
