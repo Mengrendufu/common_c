@@ -42,6 +42,11 @@ MAIN := main.exe
 OUTPUTMAIN := $(OUTPUT)/$(MAIN)
 # executable file -------------------------------------------------------------
 
+# dependences, after OBJECTS --------------------------------------------------
+DEPS := $(OBJECTS:.o=.d)
+-include $(DEPS)
+# dependences, after OBJECTS --------------------------------------------------
+
 .PHONY: all clean show run
 
 # make it first target --------------------------------------------------------
@@ -59,7 +64,7 @@ $(OUTPUT):
 $(OUTPUT)/%.o: %.c | $(OUTPUT)
 	@echo "Compiling $< -> $@"
 	@$(MD) $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -MF $(OUTPUT)/$*.d -MT $@ -c $< -o $@
 # .o compiling ----------------------------------------------------------------
 
 # linking ---------------------------------------------------------------------
