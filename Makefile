@@ -46,8 +46,10 @@ OUTPUTMAIN := $(call FIXPATH,$(OUTPUT)/$(MAIN))
 
 .PHONY: all clean show run
 
+# make it first target --------------------------------------------------------
 all: $(OUTPUTMAIN)
 	@echo "Build complete: $(OUTPUTMAIN)"
+# make it first target --------------------------------------------------------
 
 # make build ------------------------------------------------------------------
 # make sure output dir exists -------------------------------------------------
