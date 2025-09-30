@@ -2,81 +2,86 @@
 ################################## MAKEFILE ###################################
 ###############################################################################
 
-# 递归通配函数（纯 make） ————---------------------------------------------------
+# recursive match function (pure make) ----------------------------------------
 rwildcard = $(foreach d,$(wildcard $1*), $(call rwildcard,$d/,$2)) \
             $(filter $(subst *,%,$2), $(wildcard $1$2))
-# 递归通配函数（纯 make） ————---------------------------------------------------
+# recursive match function (pure make) ----------------------------------------
 
-# gitbash mingw64 -------------------------------------------------------------
-MD := mkdir -p
-RM := rm -rf
-# gitbash mingw64 -------------------------------------------------------------
-
-# 编译器与选项 -----------------------------------------------------------------
+# compiler options ------------------------------------------------------------
 CC := gcc
 CFLAGS := -Wall -Wextra -g
 LFLAGS :=
-# 编译器与选项 -----------------------------------------------------------------
+# compiler options ------------------------------------------------------------
 
-# 源代码、头文件目录、输出目录 ---------------------------------------------------
-SRC_DIRS := .
+# source dir, header dir, lib dir, output dir ---------------------------------
+SRC_DIRS := src common/src
 INCLUDE_DIRS := include common/include
+LIB		:= lib
 OUTPUT := output
-# 源代码、头文件目录、输出目录 ---------------------------------------------------
+# source dir, header dir, lib dir, output dir ---------------------------------
 
-# 搜索所有 .c 源文件（遍历多个源目录）
-SRC_C := $(foreach d, $(SRC_DIRS), $(call rwildcard, $(d)/, *.c))
+# shell specific settings -----------------------------------------------------
+ifeq (,$(findstring Git,$(SHELL))) # powershell
+MD	    := -powershell mkdir -Force
+RM      := -powershell Remove-Item -Recurse -Force
+FIXPATH  = $(subst /,\,$1)
+else # gitbash
+MD	    := mkdir -p
+RM      := rm -rf
+FIXPATH  = $1
+endif
+# shell specific settings -----------------------------------------------------
 
-# 搜索所有 .h 头文件（遍历多个 include 目录）
-SRC_H := $(foreach d, $(INCLUDE_DIRS), $(call rwildcard, $(d)/, *.h))
+# for compiler ----------------------------------------------------------------
+SOURCES  := $(foreach d, $(SRC_DIRS), $(call rwildcard, $(d)/, *.c))
+INCLUDES := $(addprefix -I, $(INCLUDE_DIRS))
+LIBS     := $(addprefix -L, $(LIBDIRS))
+OBJECTS	 := $(patsubst %.c, $(OUTPUT)/%.o, $(SOURCES))
+# for compiler ----------------------------------------------------------------
 
-# 对象文件路径：把源目录结构镜像到 OUTPUT 下
-# 如 src/foo/bar.c -> output/src/foo/bar.o
-OBJS := $(patsubst %.c, $(OUTPUT)/%.o, $(patsubst %/%.c, %/%.c, $(SRC_C)))
-
-# 可执行文件路径
-OUTPUTMAIN := $(OUTPUT)/main.exe
+# executable file -------------------------------------------------------------
+MAIN := main.exe
+OUTPUTMAIN := $(call FIXPATH,$(OUTPUT)/$(MAIN))
+# executable file -------------------------------------------------------------
 
 .PHONY: all clean show run
 
-all: $(OUTPUT) $(OUTPUTMAIN)
+all: $(OUTPUTMAIN)
 	@echo "Build complete: $(OUTPUTMAIN)"
 
-# 确保 output 根目录存在
+# make build ------------------------------------------------------------------
+# make sure output dir exists -------------------------------------------------
 $(OUTPUT):
 	$(MD) $(OUTPUT)
+# make sure output dir exists -------------------------------------------------
 
-# 链接可执行文件
-$(OUTPUTMAIN): $(OBJS)
-	$(CC) $(LFLAGS) -o $@ $^
-
-# 编译规则：把 output/…/.o 从相应的源 .c 文件生成
-# 因为你有多个源目录，所以匹配模式要宽泛一点
-# 假设你的源结构始终包含目录名（如 src/... 或 common/src/…）
-$(OUTPUT)/%.o: %.c $(SRC_H) | $(OUTPUT)
+# .o compiling ----------------------------------------------------------------
+$(OUTPUT)/%.o: %.c | $(OUTPUT)
 	@echo "Compiling $< -> $@"
-	@$(MD) $(dir $@)
-	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -c $< -o $@
+	@$(MD) $(call FIXPATH,$(dir $@))
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+# .o compiling ----------------------------------------------------------------
 
-# run 目标：编译然后执行
+# linking ---------------------------------------------------------------------
+$(OUTPUTMAIN): $(OBJECTS)
+	@echo "Linking $@"
+	$(CC) $(OBJECTS) -o $@ $(LFLAGS)
+# linking ---------------------------------------------------------------------
+
 run: all
-	@echo "Running $(OUTPUTMAIN)..."
-	@$(OUTPUTMAIN)
-
-# 调试：显示列表
-show:
-	@echo "Makefile Debug Info:"
-	@echo OS: $(SHELL)
-	@echo "CC = $(CC)"
-	@echo "CFLAGS= $(CFLAGS)"
-	@echo "LFLAGS= $(LFLAGS)"
-	@echo "SRC_DIRS = $(SRC_DIRS)"
-	@echo "INCLUDE_DIRS = $(INCLUDE_DIRS)"
-	@echo "OUTPUT = $(OUTPUT)"
-	@echo "SRC_C = $(SRC_C)"
-	@echo "SRC_H = $(SRC_H)"
-	@echo "OBJS  = $(OBJS)"
+	./$(OUTPUTMAIN)
 
 clean:
-	@echo "Cleaning..."
-	$(RM) $(OUTPUT)
+	@echo "Cleaning output directory: $(OUTPUT)"
+	$(RM) $(call FIXPATH,$(OUTPUT))
+
+# DEBUG -----------------------------------------------------------------------
+show:
+	@echo "Makefile Debug Info:"
+	@echo "Shell: $(SHELL)"
+	@echo "Sources: $(SOURCES)"
+	@echo "Objects: $(OBJECTS)"
+	@echo "Includes: $(INCLUDES)"
+	@echo "Libs: $(LIBS)"
+	@echo "Output Main: $(OUTPUTMAIN)"
+# DEBUG -----------------------------------------------------------------------
