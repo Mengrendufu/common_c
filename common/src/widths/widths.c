@@ -8,12 +8,12 @@ SystemDataTypeLengths system_data_type_lengths_get(void) {
     SystemDataTypeLengths lengths;
 
     /* Arrays to calculate the size difference between consecutive elements */
-    unsigned char      uc_arr[2];
-    unsigned short     ush_arr[2];
-    unsigned int       ui_arr[2];
-    unsigned long      ul_arr[2];
-    unsigned long long ull_arr[2];
-    void *             vp_arr[2];
+    unsigned char          uc_arr[2];
+    unsigned short         ush_arr[2];
+    unsigned int           ui_arr[2];
+    unsigned long int      ul_arr[2];
+    unsigned long long int ull_arr[2];
+    void *                 vp_arr[2];
 
     /* Assign the calculated sizes to the struct members */
     lengths.uc  = PTR_DISTANCE_BYTES(&uc_arr[0],  &uc_arr[1]);
@@ -46,8 +46,7 @@ void system_lengths_test(void) {
         system_lengths.ui,
         system_lengths.ul,
         system_lengths.ull,
-        system_lengths.vp
-    );
+        system_lengths.vp);
 
     return;
 }

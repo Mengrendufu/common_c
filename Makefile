@@ -10,14 +10,20 @@ rwildcard = $(foreach d,$(wildcard $1*), $(call rwildcard,$d/,$2)) \
 # compiler options ------------------------------------------------------------
 CC := gcc
 CFLAGS := -Wall -Wextra -g
-LFLAGS :=
 # compiler options ------------------------------------------------------------
 
+# library paths, link flags
+# define library paths in addition to /usr/lib
+#   if I wanted to include libraries not in /usr/lib I'd specify
+#   their path using -Lpath, something like: -L./lib
+LFLAGS :=
+
 # source dir, header dir, lib dir, output dir ---------------------------------
-SRC_DIRS := src common/src
+SRC_DIRS     := src common/src
 INCLUDE_DIRS := include common/include
-LIB		:= lib
-OUTPUT := output
+# libraries like: mylib pthread
+LIB	         := lib
+OUTPUT       := output
 # source dir, header dir, lib dir, output dir ---------------------------------
 
 # shell specific settings -----------------------------------------------------
@@ -33,7 +39,7 @@ endif
 # for compiler ----------------------------------------------------------------
 SOURCES  := $(foreach d, $(SRC_DIRS), $(call rwildcard, $(d)/, *.c))
 INCLUDES := $(addprefix -I, $(INCLUDE_DIRS))
-LIBS     := $(addprefix -L, $(LIBDIRS))
+LIBS     := $(addprefix -L, $(LIB))
 OBJECTS	 := $(patsubst %.c, $(OUTPUT)/%.o, $(SOURCES))
 # for compiler ----------------------------------------------------------------
 
@@ -71,7 +77,7 @@ $(OUTPUT)/%.o: %.c | $(OUTPUT)
 # linking #2 ------------------------------------------------------------------
 $(OUTPUTMAIN): $(OBJECTS)
 	@echo "Linking $@"
-	$(CC) $(OBJECTS) -o $@ $(LFLAGS)
+	$(CC) $(OBJECTS) -o $@ $(LFLAGS) $(LIBS)
 # linking #2 ------------------------------------------------------------------
 
 run: all

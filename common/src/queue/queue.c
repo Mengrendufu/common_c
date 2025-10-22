@@ -10,11 +10,11 @@ void CircularQueue_init(
     void *qSto,
     uint16_t qLen)
 {
-    me->ring   = qSto;
-    me->head   = 0U;
-    me->tail   = 0U;
-    me->qLen   = qLen;
-    me->nUsed  = 0U;
+    me->ring  = qSto;
+    me->head  = 0U;
+    me->tail  = 0U;
+    me->qLen  = qLen;
+    me->nUsed = 0U;
 
     return;
 }
@@ -26,8 +26,8 @@ void CircularQueue_put(
     void *elemPut)
 {
     /* Element input (type erasure) ----------------------------------------*/
-    *(CIRQUEUE_CAST(void **, me->ring) + me->head)
-        = *CIRQUEUE_CAST(void **, elemPut);
+    *(CIRQUEUE_CAST(void **, me->ring) + me->head) =
+        *CIRQUEUE_CAST(void **, elemPut);
     /* Element input (type erasure) ----------------------------------------*/
 
     /* count adjust --------------------------------------------------------*/
@@ -61,8 +61,8 @@ void CircularQueue_get(
     void *elemGet)
 {
     /* Element input (type erasure) ----------------------------------------*/
-    *CIRQUEUE_CAST(void **, elemGet)
-        = *(CIRQUEUE_CAST(void **, me->ring) + me->tail);
+    *CIRQUEUE_CAST(void **, elemGet) =
+        *(CIRQUEUE_CAST(void **, me->ring) + me->tail);
     /* Element input (type erasure) ----------------------------------------*/
 
     /* wrap around ---------------------------------------------------------*/
