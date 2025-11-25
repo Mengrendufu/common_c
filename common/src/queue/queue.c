@@ -21,13 +21,9 @@ void CircularQueue_init(
 /* constructor -------------------------------------------------------------*/
 
 /* circular put ------------------------------------------------------------*/
-void CircularQueue_put(
-    CircularQueue *me,
-    void *elemPut)
-{
+void CircularQueue_put(CircularQueue *me, void *elemPut) {
     /* Element input (type erasure) ----------------------------------------*/
-    *(CIRQUEUE_CAST(void **, me->ring) + me->head) =
-        *CIRQUEUE_CAST(void **, elemPut);
+    me->ring[me->head] = elemPut;
     /* Element input (type erasure) ----------------------------------------*/
 
     /* count adjust --------------------------------------------------------*/
@@ -56,14 +52,10 @@ void CircularQueue_put(
 /* circular put ------------------------------------------------------------*/
 
 /* none-empty getter -------------------------------------------------------*/
-void CircularQueue_get(
-    CircularQueue *me,
-    void *elemGet)
-{
-    /* Element input (type erasure) ----------------------------------------*/
-    *CIRQUEUE_CAST(void **, elemGet) =
-        *(CIRQUEUE_CAST(void **, me->ring) + me->tail);
-    /* Element input (type erasure) ----------------------------------------*/
+void *CircularQueue_get(CircularQueue *me) {
+    /* Element output (type erasure) ---------------------------------------*/
+    void *elemGet = me->ring[me->tail];
+    /* Element output (type erasure) ---------------------------------------*/
 
     /* wrap around ---------------------------------------------------------*/
     if (me->tail == 0U) {
@@ -73,18 +65,20 @@ void CircularQueue_get(
     --me->tail;
     --me->nUsed;
 
-    return;
+    return elemGet;
 }
 /* none-empty getter -------------------------------------------------------*/
 
 /* test area ---------------------------------------------------------------*/
 void CircularQueue_test(void) {
+    printf("Circular queue test ---------------------------------------\r\n");
+
     /* circular queue ------------------------------------------------------*/
     CircularQueue queue_test;
     void *queue_sto_test[CIRQUEUE_TEST_QUEUE_SIZE];
     CircularQueue_init(
         &queue_test,
-        (void *)queue_sto_test,
+        queue_sto_test,
         CIRQUEUE_TEST_QUEUE_SIZE);
     /* circular queue ------------------------------------------------------*/
 
@@ -99,17 +93,23 @@ void CircularQueue_test(void) {
     for (uint8_t i = 0U; i < CIRQUEUE_TEST_DATA_SIZE; ++i) {
         CircularQueue_put(
             &queue_test,
-            (void *)&test_data[i]);
+            (void *)((uint64_t)(test_data[i] + 3)));
     }
     /* en queue ------------------------------------------------------------*/
 
+    /* sto -----------------------------------------------------------------*/
+    printf("queue sto: \r\n");
+    for (uint8_t i = 0; i < CIRQUEUE_TEST_QUEUE_SIZE; ++i) {
+        printf("%llu ", (uint64_t)(queue_sto_test[i]));
+    }
+    printf("\r\n");
+    /* sto -----------------------------------------------------------------*/
+
     /* de queue & print out ------------------------------------------------*/
-    CirQueueTest_Type tmp;
+    void *tmp;
     while (!CircularQueue_empty(&queue_test)) {
-        CircularQueue_get(
-            &queue_test,
-            &tmp);
-        printf("%d ", tmp);
+        tmp = CircularQueue_get(&queue_test);
+        printf("%llu ", (uint64_t)tmp);
     }
     printf("\r\n");
     /* de queue & print out ------------------------------------------------*/

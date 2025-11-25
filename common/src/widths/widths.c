@@ -1,5 +1,6 @@
 /* dependencies ------------------------------------------------------------*/
-#include "stdio.h"
+#include <stdio.h>
+
 #include "widths.h"
 /* dependencies ------------------------------------------------------------*/
 
@@ -9,7 +10,7 @@ SystemDataTypeLengths system_data_type_lengths_get(void) {
 
     /* Arrays to calculate the size difference between consecutive elements */
     unsigned char          uc_arr[2];
-    unsigned short         ush_arr[2];
+    unsigned short int     ush_arr[2];
     unsigned int           ui_arr[2];
     unsigned long int      ul_arr[2];
     unsigned long long int ull_arr[2];
@@ -34,19 +35,19 @@ void system_lengths_test(void) {
     printf(
         "SYSTEM's sizeof(TYPE):\r\n"
         "TYPE -------------------- SIZE\r\n"
-        "unsigned char         : %2dBYTE\r\n"
-        "unsigned short        : %2dBYTE\r\n"
-        "unsigned int          : %2dBYTE\r\n"
-        "unsigned long int     : %2dBYTE\r\n"
-        "unsigned long long int: %2dBYTE\r\n"
-        "pointer               : %2dBYTE\r\n",
+        "unsigned char         : %2d BYTE => %2dbits\r\n"
+        "unsigned short int    : %2d BYTE => %2dbits\r\n"
+        "unsigned int          : %2d BYTE => %2dbits\r\n"
+        "unsigned long int     : %2d BYTE => %2dbits\r\n"
+        "unsigned long long int: %2d BYTE => %2dbits\r\n"
+        "pointer               : %2d BYTE => %2dbits\r\n",
 
-        system_lengths.uc,
-        system_lengths.ush,
-        system_lengths.ui,
-        system_lengths.ul,
-        system_lengths.ull,
-        system_lengths.vp);
+        system_lengths.uc,  8 * system_lengths.uc,
+        system_lengths.ush, 8 * system_lengths.ush,
+        system_lengths.ui,  8 * system_lengths.ui,
+        system_lengths.ul,  8 * system_lengths.ul,
+        system_lengths.ull, 8 * system_lengths.ull,
+        system_lengths.vp,  8 * system_lengths.vp );
 
     return;
 }

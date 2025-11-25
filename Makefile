@@ -19,8 +19,12 @@ CFLAGS := -Wall -Wextra -g
 LFLAGS :=
 
 # source dir, header dir, lib dir, output dir ---------------------------------
-SRC_DIRS     := src common/src
-INCLUDE_DIRS := include common/include
+SRC_DIRS     := src \
+				common/src \
+				leetcodes/src
+INCLUDE_DIRS := include \
+				common/include \
+				leetcodes/include
 # libraries like: mylib pthread
 LIB	         := lib
 OUTPUT       := output

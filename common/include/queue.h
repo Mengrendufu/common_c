@@ -1,13 +1,13 @@
 #ifndef queue_h_
 #define queue_h_
 
-/*****************************************************************************
-    Here, we always store the data in the void *sto which might cause some
-wasted.
-
-    If we want to store bytes in the the *ring, then the size of
-sizeof(void *) - sizeof(unsigned char) is wasted.
-*****************************************************************************/
+/*=====================================
+*     Here, we always store the data in the void *sto which might cause some
+* wasted.
+*
+*     If we want to store bytes in the the *ring, then the size of
+* sizeof(void *) - sizeof(unsigned char) is wasted.
+*====================================*/
 
 /* type cast hepler --------------------------------------------------------*/
 #define CIRQUEUE_CAST(type_, unit_) ((type_)(unit_))
@@ -15,7 +15,7 @@ sizeof(void *) - sizeof(unsigned char) is wasted.
 
 /* class -------------------------------------------------------------------*/
 typedef struct CircularQueue {
-    void *ring;  /*! ==> void *queue_sto[QUEUE_SIZE] */
+    void **ring;  /*! **ring --> void *queue_sto[QUEUE_SIZE] */
     uint16_t head;
     uint16_t tail;
     uint16_t qLen;
@@ -38,15 +38,11 @@ void CircularQueue_init(
 /* constructor -------------------------------------------------------------*/
 
 /* circular put ------------------------------------------------------------*/
-void CircularQueue_put(
-    CircularQueue *me,
-    void *elemPut);
+void CircularQueue_put(CircularQueue *me, void *elemPut);
 /* circular put ------------------------------------------------------------*/
 
 /* none-empty getter -------------------------------------------------------*/
-void CircularQueue_get(
-    CircularQueue *me,
-    void *elemGet);
+void *CircularQueue_get(CircularQueue *me);
 /* none-empty getter -------------------------------------------------------*/
 
 /* test area ---------------------------------------------------------------*/

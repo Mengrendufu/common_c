@@ -25,20 +25,24 @@ void StaticPool_init(
         me->blockSize += (uint16_t)sizeof(FreeBlock);
         ++nBlocks;
     }
-    blockSize = me->blockSize; /* update blockSize */
     /* round up of blocksize -----------------------------------------------*/
 
     /* creating block linking ----------------------------------------------*/
-    poolSize -= blockSize;  /* first block */
+    /**
+    * REQUIRE:
+    *       poolSize >= me->blockSize,
+    *       pool sto at least contains one block
+    */
+    poolSize -= me->blockSize;  /* first block */
     me->nTot = (uint16_t)1;
     fb = (FreeBlock *)me->free_head;
-    while (poolSize >= blockSize) {
+    while (poolSize >= me->blockSize) {
         fb->next = fb + nBlocks;
         fb = fb->next;
-        poolSize -= blockSize;
+        poolSize -= me->blockSize;
         ++me->nTot;
     }
-    fb->next = (FreeBlock *)0; /* end of free list */
+    fb->next = (FreeBlock *)0; /* NULL */
     /* creating block linking ----------------------------------------------*/
 
     /* attributes done -----------------------------------------------------*/
@@ -55,7 +59,6 @@ void StaticPool_init(
 /* block get ---------------------------------------------------------------*/
 void *StaticPool_get(StaticPool * const me) {
     FreeBlock *fb;
-
     fb = (FreeBlock *)0;
     fb = (FreeBlock *)me->free_head;
     if (fb != (FreeBlock *)0) {
@@ -65,7 +68,6 @@ void *StaticPool_get(StaticPool * const me) {
             me->nMin = me->nFree;
         }
     }
-
     return fb;
 }
 /* block get ---------------------------------------------------------------*/
@@ -78,7 +80,6 @@ void StaticPool_put(
     ((FreeBlock *)block)->next = (FreeBlock *)me->free_head;
     me->free_head = block;
     ++me->nFree;
-
     return;
 }
 /* block gc ----------------------------------------------------------------*/
