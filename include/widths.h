@@ -14,6 +14,9 @@ typedef struct SystemDataTypeLengths {
     unsigned char  ul;   /* sizeof(unsigned long) */
     unsigned char  ull;  /* sizeof(unsigned long long) */
     unsigned char  vp;   /* sizeof(void*): pointer type */
+    unsigned char  flt;  /* sizeof(float)*/
+    unsigned char  fdb;  /* sizeof(double)*/
+    unsigned char  fldb; /* sizeof(long double)*/
 } SystemDataTypeLengths;
 /* struct to store lengths of various system data types --------------------*/
 

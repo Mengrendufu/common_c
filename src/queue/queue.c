@@ -15,7 +15,7 @@ void CircularQueue_init(
     me->tail  = 0U;
     me->qLen  = qLen;
     me->nUsed = 0U;
-
+    me->nMin  = me->qLen;
     return;
 }
 /* constructor -------------------------------------------------------------*/
@@ -37,6 +37,11 @@ void CircularQueue_put(CircularQueue *me, void *elemPut) {
         /* not full --------------------------------------------------------*/
         ++me->nUsed;
         /* not full --------------------------------------------------------*/
+
+        /* minimal content update */
+        if (me->nMin > me->qLen - me->nUsed) {
+            me->nMin = me->qLen - me->nUsed;
+        }
     }
     else {
         /* overflow, wrap around -------------------------------------------*/
@@ -96,6 +101,9 @@ void CircularQueue_test(void) {
             (void *)((uint64_t)(test_data[i] + 3)));
     }
     /* en queue ------------------------------------------------------------*/
+
+    /* queue minimal content */
+    printf("minimal content of queue: %d\r\n", queue_test.nMin);
 
     /* sto -----------------------------------------------------------------*/
     printf("queue sto: \r\n");

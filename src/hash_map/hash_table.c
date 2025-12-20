@@ -27,13 +27,20 @@ static unsigned long int hash_djb2(const char *s, size_t cap) {
 
 /* hash key ----------------------------------------------------------------*/
 static unsigned long HashTable_hashKey(
+
     HashNode_KeyType type,
+
     void *key,
+
     size_t cap)
 {
+
     return (type == KEY_INT)
+
             ? hash_int((int)ALIGN_PTR_LEN(key), cap)
+
             : hash_djb2((char *)key, cap);
+
 }
 /* hash key ----------------------------------------------------------------*/
 
@@ -41,25 +48,46 @@ static unsigned long HashTable_hashKey(
  * hash node create & free
  * ============================= */
 static HashNode *HashTable_createNode(
-    HashNode_KeyType type, void *key, void *value)
+
+    HashNode_KeyType type,
+
+    void *key, void *value)
 {
+
     HashNode *node = malloc(sizeof(HashNode));
+
     node->type = type;
+
     node->value = value;
+
     node->next = NULL;
+
     if (type == KEY_INT) {
+
         node->key = key;
+
     } else {
+
         node->key = strdup((char *)key); /* string copy */
+
     }
+
     return node;
+
 }
+
 static void HashTable_freeNode(HashNode *node) {
+
     if (node->type == KEY_STR) {
+
         free(node->key);
+
     }
+
     free(node);
+
     return;
+
 }
 
 /* =============================
@@ -93,25 +121,47 @@ static void HashTable_freeChain(HashNode *node) {
  * resize when inserting
  * ============================= */
 static void HashTable_resize(HashTable *ht, size_t new_capacity) {
+
     HashNode **new_buckets = calloc(new_capacity, sizeof(HashNode *));
+
     for (size_t i = 0; i < ht->capacity; i++) {
+
         HashNode *node = ht->buckets[i];
+
+        /*
+         * re-hash
+         */
+
         while (node) {
+
             HashNode *next = node->next;
-            /* re-hash */
+
             unsigned long new_idx = HashTable_hashKey(
-                                        node->type,
-                                        node->key,
-                                        new_capacity);
+
+                                            node->type,
+
+                                            node->key,
+
+                                            new_capacity);
+
             node->next = new_buckets[new_idx];
+
             new_buckets[new_idx] = node;
+
             node = next;
+
         }
+
     }
+
     free(ht->buckets);  /* free old buckets */
+
     ht->buckets = new_buckets;
+
     ht->capacity = new_capacity;
+
     return;
+
 }
 
 /* =============================

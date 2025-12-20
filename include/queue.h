@@ -9,10 +9,6 @@
 * sizeof(void *) - sizeof(unsigned char) is wasted.
 *====================================*/
 
-/* type cast hepler --------------------------------------------------------*/
-#define CIRQUEUE_CAST(type_, unit_) ((type_)(unit_))
-/* type cast hepler --------------------------------------------------------*/
-
 /* class -------------------------------------------------------------------*/
 typedef struct CircularQueue {
     void **ring;  /*! **ring --> void *queue_sto[QUEUE_SIZE] */
@@ -20,6 +16,7 @@ typedef struct CircularQueue {
     uint16_t tail;
     uint16_t qLen;
     uint16_t nUsed;
+    uint16_t nMin;
 } CircularQueue;
 /* class -------------------------------------------------------------------*/
 

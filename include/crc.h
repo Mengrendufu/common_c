@@ -1,5 +1,5 @@
-#ifndef crc_h
-#define crc_h
+#ifndef crc_h_
+#define crc_h_
 
 /* crc-byte-table automatic generation -------------------------------------*/
 /** EXAMPLE: *****************************************************************
@@ -206,4 +206,4 @@ void crc_test_handler(void);
 /* crc test handler --------------------------------------------------------*/
 /* test area ---------------------------------------------------------------*/
 
-#endif  /* crc_h */
+#endif  /* crc_h_ */
