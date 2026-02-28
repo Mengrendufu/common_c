@@ -1,39 +1,35 @@
-#ifndef timer_h_
-#define timer_h_
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
+#ifndef TIMER_H_
+#define TIMER_H_
 
-/* timer propotype ---------------------------------------------------------*/
+//============================================================================
+#include "timer_port.h"
+
+//============================================================================
+typedef void (*timeoutCallback)(void);
+
+//============================================================================
 typedef struct Timer {
     uint8_t hour;
     uint8_t min;
     uint8_t sec;
+    timeoutCallback tmCb;
 } Timer;
-/* timer propotype ---------------------------------------------------------*/
 
-/* constructor -------------------------------------------------------------*/
-void Timer_set(
-    Timer *me,
-    uint8_t hour,
-    uint8_t min,
-    uint8_t sec);
-/* constructor -------------------------------------------------------------*/
-
-/* check -------------------------------------------------------------------*/
-uint8_t Timer_is_clear(Timer *me);
-/* check -------------------------------------------------------------------*/
-
-/* clear -------------------------------------------------------------------*/
+//============================================================================
+void Timer_ctor(Timer *me, timeoutCallback cb);
+void Timer_set(Timer *me,
+               uint8_t hour, uint8_t min, uint8_t sec);
+bool Timer_is_clear(Timer *me);
 void Timer_turn_off(Timer *me);
-/* clear -------------------------------------------------------------------*/
-
-/* timer countdown by sec (utterly safe) -----------------------------------*/
 void Timer_countdown(Timer *me);
-/* timer countdown by sec (utterly safe) -----------------------------------*/
 
-/* test area ---------------------------------------------------------------*/
-#define TIMER_TEST_HOUR  0U
-#define TIMER_TEST_MIN   0U
-#define TIMER_TEST_SEC   15U
-void Timer_test(void);
-/* test area ---------------------------------------------------------------*/
-
-#endif  /* timer_h_ */
+#endif // TIMER_H_

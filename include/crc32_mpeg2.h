@@ -7,22 +7,27 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#ifndef HEAP_SORT_H_
-#define HEAP_SORT_H_
+#ifndef CRC32_MPEG2_H_
+#define CRC32_MPEG2_H_
 
 //============================================================================
-#include "heap_sort_port.h"
+#include "crc_port.h"
 
 //============================================================================
-typedef bool (*HeapSortCmp)(void *a, void *b);
+// name       : CRC32_MPEG2
+// poly       : 0x04C11DB7
+// reversePoly: 0xEDB88320
+// init       : 0xFFFFFFFF
+// refIn      : False
+// refOut     : False
+// xorOut     : 0x00000000
+#define INIT_CRC32_MPEG2    0xFFFFFFFF
+#define XOR_OUT_CRC32_MGEG2 0x00000000
 
-//============================================================================
-void HeapSort_heapSortRecursive(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
+uint32_t CRCIter_crc32_mpeg2(uint32_t prev,
+                             uint8_t ch);
 
-void HeapSort_heapSortIterative(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
+uint32_t crc32_mpeg2(uint8_t *arr,
+                     uint16_t arrSize);
 
-#endif // HEAP_SORT_H_
+#endif // CRC32_MPEG2_H_

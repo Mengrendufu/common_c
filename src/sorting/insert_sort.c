@@ -1,40 +1,24 @@
-/* dependencies ------------------------------------------------------------*/
-#include <stdio.h>
-
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
 #include "insert_sort.h"
-/* dependencies ------------------------------------------------------------*/
 
-void InsertSort_insertSort(int arr[], int n) {
+//============================================================================
+void InsertSort_insertSort(int *arr, int n) {
     int insElemIdx, insElem, sortedIdx;
     for (insElemIdx = 1; insElemIdx < n; ++insElemIdx) {
         insElem = arr[insElemIdx];
         sortedIdx = insElemIdx - 1;
-        while ((sortedIdx >= 0) && (arr[sortedIdx] > insElem)) {
-            arr[sortedIdx + 1] = arr[sortedIdx];  /* move right */
-            --sortedIdx;  /* left search */
+        while ((sortedIdx >= 0) && (arr[sortedIdx] > insElem)) { // asend.
+            arr[sortedIdx + 1] = arr[sortedIdx];  // move right.
+            --sortedIdx;  // left search.
         }
-        arr[sortedIdx + 1] = insElem;  /* insert */
+        arr[sortedIdx + 1] = insElem;  // insert.
     }
-
-    return;
-}
-
-static void printArray(int *arr, int size) {
-    for (int i = 0; i < size; i++) {
-        printf("%d ", arr[i]);
-    }
-    printf("\r\n");
-
-    return;
-}
-void InsertSort_testHandler(void) {
-    int arr[] = {9, 8, 5, 3, 2, 5, 0, 0, 0};
-    int n = sizeof(arr)/sizeof(arr[0]);
-
-    printf("InsertSort test -------------------------------------------\r\n");
-    printf("Unsorted %2d-element array:", n); printArray(arr, n);
-    InsertSort_insertSort(arr, n);
-    printf("Sorted %4d-element array:", n);   printArray(arr, n);
-
-    return;
 }

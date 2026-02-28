@@ -1,14 +1,29 @@
-#ifndef linklist_h_
-#define linklist_h_
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
+#ifndef LINKLIST_H_
+#define LINKLIST_H_
 
+//============================================================================
+#include "linklist_port.h"
+
+//============================================================================
 typedef struct ListNode {
-
-    void *val;
-
     struct ListNode *next;
-
 } ListNode;
 
-void LinkList_testHandler(void);
+//============================================================================
+typedef bool (*MergeSortCmp)(void *, void *);
 
-#endif  /* linklist_h_ */
+//============================================================================
+ListNode *LinkList_reverse(ListNode *lt);
+
+ListNode *LinkList_mergeSort(ListNode *lt, MergeSortCmp cmpCb);
+
+#endif // LINKLIST_H_

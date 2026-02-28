@@ -1,16 +1,17 @@
-#ifndef quick_sort_h_
-#define quick_sort_h_
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
+#ifndef QUICK_SORT_H_
+#define QUICK_SORT_H_
 
-/* quick sort (recursive version) ------------------------------------------*/
-void QuickSort_qSort(int *arr, int left, int right);
-/* quick sort (recursive version) ------------------------------------------*/
+//============================================================================
+void QuickSort_recursive(int *arr, int left, int right);
+void QuickSort_iterative(int *arr, int left, int right);
 
-/* quick sort (non-recursive version, with explicit stack) -----------------*/
-void QuickSort_qSort_iterative(int *arr, int left, int right);
-/* quick sort (non-recursive version, with explicit stack) -----------------*/
-
-/* quick sort test ---------------------------------------------------------*/
-void QuickSort_testHandler(void);
-/* quick sort test ---------------------------------------------------------*/
-
-#endif /* quick_sort_h_ */
+#endif // QUICK_SORT_H_

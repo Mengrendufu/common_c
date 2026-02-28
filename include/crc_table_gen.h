@@ -7,22 +7,19 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#ifndef HEAP_SORT_H_
-#define HEAP_SORT_H_
+#ifndef CRC_TABLE_GEN_H_
+#define CRC_TABLE_GEN_H_
 
 //============================================================================
-#include "heap_sort_port.h"
+#include "crc_port.h"
 
 //============================================================================
-typedef bool (*HeapSortCmp)(void *a, void *b);
+//! @public Generate the CRC table via a specific POLY.
+//! @param[in] width The bit width of CRC_x algorithm.
+//! @param[in] poly Pointing to the poly, endian process inside.
+//! @param[in] isRefin Is the refin option true?
+void CRC_tableGen(uint8_t width,
+                  uint8_t *poly,
+                  bool isRefin);
 
-//============================================================================
-void HeapSort_heapSortRecursive(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
-
-void HeapSort_heapSortIterative(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
-
-#endif // HEAP_SORT_H_
+#endif // CRC_TABLE_GEN_H_

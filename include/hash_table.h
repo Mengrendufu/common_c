@@ -1,61 +1,52 @@
-#ifndef hash_table_h_
-#define hash_table_h_
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
+#ifndef HASH_TABLE_H_
+#define HASH_TABLE_H_
 
-/* hash table --------------------------------------------------------------*/
-/* initial setting ---------------------------------------------------------*/
+//============================================================================
+#include "hash_table_port.h"
+
+//============================================================================
+//! @brief Initial size and resize thres: 50%.
+//! @cond INTERNAL
+
 #define INITIAL_CAPACITY 8
-#define LOAD_FACTOR_LIMIT_INV 2U
-/* initial setting ---------------------------------------------------------*/
+#define LOAD_FACTOR_LIMIT_INV 2
 
-/* =================================
- * key type of hash node
- * ================================= */
-typedef enum { KEY_INT, KEY_STR } HashNode_KeyType;
+//! @endcond
 
-/* =============================
- * Hash node
- * ============================= */
+//! @enum Type of key of HashNode.
+typedef enum {
+    KEY_INT,
+    KEY_STR
+} HashNode_KeyType;
+
 typedef struct HashNode {
-  HashNode_KeyType type;
-  void *key;             /* mixed key */
-  void *value;           /* value */
-  struct HashNode *next; /* node link */
+    struct HashNode *next;
+    HashNode_KeyType type;
+    void *key;
+    void *value;
 } HashNode;
 
-/* =============================
- * Hash table
- * ============================= */
 typedef struct HashTable {
-  HashNode **buckets; /* buckets, head of the nodes */
-  size_t capacity;
-  size_t size;
+    HashNode **buckets;
+    size_t capacity;
+    size_t size;
 } HashTable;
 
-/* Hash table methods */
-
 HashTable *HashTable_create(void);
-
 void HashTable_free(HashTable *ht);
-
-void HashTable_insert(
-
-    HashTable *ht,
-
-    HashNode_KeyType type,
-
-    void *key,
-
-    void *value);
-
-int HashTable_remove(HashTable *ht, HashNode_KeyType type, void *key);
-
+void HashTable_insert(HashTable *ht,
+                      HashNode_KeyType type,
+                      void *key, void *value);
+bool HashTable_remove(HashTable *ht, HashNode_KeyType type, void *key);
 void *HashTable_find(HashTable *ht, HashNode_KeyType type, void *key);
 
-/* hash table --------------------------------------------------------------*/
-
-/* test handler ------------------------------------------------------------*/
-void HashTable_print(HashTable *ht);
-void HashTable_testHandler(void);
-/* test handler ------------------------------------------------------------*/
-
-#endif /* hash_table_h_ */
+#endif // HASH_TABLE_H_

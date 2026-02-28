@@ -1,263 +1,201 @@
-/* dependencies ------------------------------------------------------------*/
-#include <stdio.h>
-#include "stdint.h"
-#include "stdbool.h"
-#include "stdlib.h"
-#include "crc.h"
-/* dependencies ------------------------------------------------------------*/
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
+#include "crc_table_gen.h"
 
-/* reverse the binary order of a byte and return ---------------------------*/
-uint8_t get_reverse_byte(uint8_t byte) {
+//============================================================================
+static uint8_t CRC_byteReverse(uint8_t byte) {
     uint8_t result;
-
     result = 0x00;
     for (uint8_t i = 0U; i < 8U; ++i) {
         result |= (((byte & (0x01 << i)) >> i) << (8U - i - 1U));
     }
-
     return result;
 }
-/* reverse the binary order of a byte and return ---------------------------*/
 
-/* generate the crc-byte-table ---------------------------------------------*/
-void crc_table_gen(
-    uint8_t crc_width,
-    uint8_t *poly,
-    bool is_refin)
+//............................................................................
+void CRC_tableGen(uint8_t width,
+                  uint8_t *poly,
+                  bool isRefin)
 {
-    /* get poly memory space -----------------------------------------------*/
-    uint8_t *poly_  = (uint8_t *)malloc(crc_width / 8U);
-    uint8_t *poly__ = (uint8_t *)malloc(crc_width / 8U);
-    /* get poly memory space -----------------------------------------------*/
+    // Memory for poly...
+    uint8_t *poly_  = (uint8_t *)malloc(width / 8U);
+    uint8_t *poly__ = (uint8_t *)malloc(width / 8U);
 
-    /* get crc table's memory space ----------------------------------------*/
+    // Memory allocation...
     uint16_t dat_;
-    uint8_t *crc_ = (uint8_t *)malloc(crc_width / 8U);
-    uint8_t *crc_table = (uint8_t *)malloc(256U * (crc_width / 8U));
-    uint16_t table_idx = 0U;
-    /* get crc table's memory space ----------------------------------------*/
+    uint8_t *crcIter = (uint8_t *)malloc(width / 8U);
+    uint8_t *crcTable = (uint8_t *)malloc(256U * (width / 8U));
+    uint16_t tblIdx = 0U;
 
-    /* endian judge --------------------------------------------------------*/
+    // System endian...
     uint16_t tmp_ = 0xFF00;
     uint8_t *tmp__ = (uint8_t *)&tmp_;
-    /* endian judge --------------------------------------------------------*/
-
     if (*tmp__) {
-        /* big endian ------------------------------------------------------*/
-        /* get poly input --------------------------------------------------*/
-        for (uint8_t i = 0U; i < crc_width / 8U; ++i) {
-            *(poly_ + i) = *(poly + i);
+        // Big-endian...
+        for (uint8_t i = 0U; i < width / 8U; ++i) {
+            *(poly_ + i)  = *(poly + i);
             *(poly__ + i) = *(poly + i);
         }
-        /* get poly input --------------------------------------------------*/
-        /* big endian ------------------------------------------------------*/
-    }
-    else {
-        /* little endian ---------------------------------------------------*/
-        /* get poly input --------------------------------------------------*/
-        for (uint8_t i = 0; i < crc_width / 8U; ++i) {
-            *(poly_ + i) =
-                *(poly + crc_width / 8U - i - 1);
-
-            *(poly__ + i) =
-                *(poly + crc_width / 8U - i - 1);
+    } else {
+        // Little endian...
+        for (uint8_t i = 0; i < width / 8U; ++i) {
+            *(poly_ + i)  = *(poly + width / 8U - i - 1);
+            *(poly__ + i) = *(poly + width / 8U - i - 1);
         }
-        /* get poly input --------------------------------------------------*/
-        /* little endian ---------------------------------------------------*/
     }
-    /* table generation ----------------------------------------------------*/
-    if (is_refin) {
-        /* get refin-poly --------------------------------------------------*/
+
+    if (isRefin) { // Incoming reverse...
+        // Get refin-poly...
         uint8_t tmp;
-        for (uint8_t i = 0U; i < ((crc_width / 8U) + 1U) / 2U; ++i) {
+        for (uint8_t i = 0U; i < ((width / 8U) + 1U) / 2U; ++i) {
             tmp = *(poly_ + i);
-            *(poly_ + i) = *(poly_ + (crc_width / 8U) - i - 1U);
-            *(poly_ + (crc_width / 8U) - i - 1U) = tmp;
+            *(poly_ + i) = *(poly_ + (width / 8U) - i - 1U);
+            *(poly_ + (width / 8U) - i - 1U) = tmp;
         }
-        /* get refin-poly --------------------------------------------------*/
 
-        /* get reverse-refin-poly ------------------------------------------*/
-        for (uint8_t i = 0U; i < crc_width / 8U; ++i) {
-            *(poly_ + i) = get_reverse_byte(*(poly_ + i));
+        // Reverse...
+        for (uint8_t i = 0U; i < width / 8U; ++i) {
+            *(poly_ + i) = CRC_byteReverse(*(poly_ + i));
         }
-        /* get reverse-refin-poly ------------------------------------------*/
 
-        /* get table -------------------------------------------------------*/
+        // Update CRC table...
         for (dat_ = 0x00; dat_ <= 0xFF; ++dat_) {
-            /* init --------------------------------------------------------*/
-            for (uint8_t i = 0U; i < crc_width / 8U; ++i) {
-                crc_[i] = 0x00;
+            // Init...
+            for (uint8_t i = 0U; i < width / 8U; ++i) {
+                crcIter[i] = 0x00;
             }
-            crc_[crc_width / 8U - 1U] = dat_;
-            /* init --------------------------------------------------------*/
+            crcIter[width / 8U - 1U] = dat_;
 
-            /* calculate process -------------------------------------------*/
+            // Generating iter crc...
             for (uint8_t i = 0U; i < 8U; ++i) {
-                if (crc_[crc_width / 8U - 1U] & 0x01) {
-                    /* shift right -----------------------------------------*/
-                    for (uint8_t j = 0U; j < crc_width / 8U - 1U; ++j) {
-                        crc_[crc_width / 8U - j - 1U] >>= 1U;
-                        if (crc_[crc_width / 8U - j - 1U - 1U] & 0x01) {
-                            crc_[crc_width / 8U - j - 1U] |= 0x80;
+                if (crcIter[width / 8U - 1U] & 0x01) {
+                    // Shifting right...
+                    for (uint8_t j = 0U; j < width / 8U - 1U; ++j) {
+                        crcIter[width / 8U - j - 1U] >>= 1U;
+                        if (crcIter[width / 8U - j - 1U - 1U] & 0x01) {
+                            crcIter[width / 8U - j - 1U] |= 0x80;
                         }
                     }
-                    crc_[0U] >>= 1U;
-                    /* shift right -----------------------------------------*/
+                    crcIter[0U] >>= 1U;
 
-                    /* xor -------------------------------------------------*/
-                    for (uint8_t k = 0U; k < crc_width / 8U; ++k) {
-                        crc_[k] ^= poly_[k];
+                    // XOR...
+                    for (uint8_t k = 0U; k < width / 8U; ++k) {
+                        crcIter[k] ^= poly_[k];
                     }
-                    /* xor -------------------------------------------------*/
-                }
-                else {
-                    /* shift right -----------------------------------------*/
-                    for (uint8_t j = 0U; j < crc_width / 8U - 1U; ++j) {
-                        crc_[crc_width / 8U - j - 1U] >>= 1U;
-                        if (crc_[crc_width / 8U - j - 1U - 1U] & 0x01) {
-                            crc_[crc_width / 8U - j - 1U] |= 0x80;
+                } else {
+                    // Shifting right...
+                    for (uint8_t j = 0U; j < width / 8U - 1U; ++j) {
+                        crcIter[width / 8U - j - 1U] >>= 1U;
+                        if (crcIter[width / 8U - j - 1U - 1U] & 0x01) {
+                            crcIter[width / 8U - j - 1U] |= 0x80;
                         }
                     }
-                    crc_[0U] >>= 1U;
-                    /* shift right -----------------------------------------*/
+                    crcIter[0U] >>= 1U;
                 }
             }
-            /* calculate process -------------------------------------------*/
 
-            /* update table ------------------------------------------------*/
-            for (uint8_t k = 0U; k < crc_width / 8U; ++k) {
-                crc_table[table_idx] = crc_[k];
-                ++table_idx;
+            // CRC table update...
+            for (uint8_t k = 0U; k < width / 8U; ++k) {
+                crcTable[tblIdx++] = crcIter[k];
             }
-            /* update table ------------------------------------------------*/
         }
-        /* get table -------------------------------------------------------*/
-    }
-    else {  /* is_refin */
-        /* get table -------------------------------------------------------*/
+    } else { // Original poly...
         for (dat_ = 0x00; dat_ <= 0xFF; ++dat_) {
-            /* init --------------------------------------------------------*/
-            for (uint8_t i = 0U; i < crc_width / 8U; ++i) {
-                crc_[i] = 0x00;
+            // Init...
+            for (uint8_t i = 0U; i < width / 8U; ++i) {
+                crcIter[i] = 0x00;
             }
-            crc_[0U] = dat_;
-            /* init --------------------------------------------------------*/
+            crcIter[0U] = dat_;
 
-            /* calculate process -------------------------------------------*/
+            // Generating iter crc...
             for (uint8_t i = 0U; i < 8U; ++i) {
-                if (crc_[0U] & 0x80) {
-                    /* shift left ------------------------------------------*/
-                    for (uint8_t j = 0U; j < crc_width / 8U - 1U; ++j) {
-                        crc_[j] <<= 1U;
-                        if (crc_[j + 1U] & 0x80) {
-                            crc_[j] |= 0x01;
+                if (crcIter[0U] & 0x80) {
+                    // Shifting left...
+                    for (uint8_t j = 0U; j < width / 8U - 1U; ++j) {
+                        crcIter[j] <<= 1U;
+                        if (crcIter[j + 1U] & 0x80) {
+                            crcIter[j] |= 0x01;
                         }
                     }
-                    crc_[crc_width / 8U - 1U] <<= 1U;
-                    /* shift left ------------------------------------------*/
+                    crcIter[width / 8U - 1U] <<= 1U;
 
-                    /* xor -------------------------------------------------*/
-                    for (uint8_t k = 0U; k < crc_width / 8U; ++k) {
-                        crc_[k] ^= poly_[k];
+                    // XOR...
+                    for (uint8_t k = 0U; k < width / 8U; ++k) {
+                        crcIter[k] ^= poly_[k];
                     }
-                    /* xor -------------------------------------------------*/
-                }
-                else {
-                    /* shift left ------------------------------------------*/
-                    for (uint8_t j = 0U; j < crc_width / 8U - 1U; ++j) {
-                        crc_[j] <<= 1U;
-                        if (crc_[j + 1U] & 0x80) {
-                            crc_[j] |= 0x01;
+                } else {
+                    // Shifting left...
+                    for (uint8_t j = 0U; j < width / 8U - 1U; ++j) {
+                        crcIter[j] <<= 1U;
+                        if (crcIter[j + 1U] & 0x80) {
+                            crcIter[j] |= 0x01;
                         }
                     }
-                    crc_[crc_width / 8U - 1U] <<= 1U;
-                    /* shift left ------------------------------------------*/
+                    crcIter[width / 8U - 1U] <<= 1U;
                 }
             }
-            /* calculate process -------------------------------------------*/
 
-            /* update table ------------------------------------------------*/
-            for (uint8_t k = 0U; k < crc_width / 8U; ++k) {
-                crc_table[table_idx] = crc_[k];
-                ++table_idx;
+            // CRC table update...
+            for (uint8_t k = 0U; k < width / 8U; ++k) {
+                crcTable[tblIdx] = crcIter[k];
+                ++tblIdx;
             }
-            /* update table ------------------------------------------------*/
         }
-        /* get table -------------------------------------------------------*/
     }
-    /* table generation ----------------------------------------------------*/
 
-    /*! OUT: print table generated in console ------------------------------*/
-    /* titles --------------------------------------------------------------*/
-    printf("%-16s%-16s%-16s\r\n",
-            "WIDTH", "POLY", "REFIN");
-
-    printf("%-16d", crc_width);
-
+    // Generating output. ====================================================
+    // Titles...
+    printf("%-16s%-16s%-16s\r\n", "WIDTH", "POLY", "REFIN");
+    printf("%-16d", width);
     printf("0x");
-    for (uint8_t i = 0U; i < crc_width / 8U; ++i) {
+    for (uint8_t i = 0U; i < width / 8U; ++i) {
         printf("%02X", poly__[i]);
     }
-
-    for (uint8_t i = 0U; i < 16U - crc_width / 4U - 2U; ++i) {
+    for (uint8_t i = 0U; i < 16U - width / 4U - 2U; ++i) {
         printf(" ");
     }
-
-    if (is_refin) {
+    if (isRefin) {
         printf("%-16s", "TRUE");
     }
     else {
         printf("%-16s", "FALSE");
     }
-
     printf("\r\n");
-    /* titles --------------------------------------------------------------*/
 
-    /* tables --------------------------------------------------------------*/
-    table_idx = 0U;
+    // Tables...
+    tblIdx = 0U;
     for (uint16_t i = 0U; i <= 0xFF; ++i) {
         printf("0x");
-        for (uint8_t j = 0U; j < crc_width / 8U; ++j) {
-            printf("%02X", crc_table[table_idx]);
-            ++table_idx;
+        for (uint8_t j = 0U; j < width / 8U; ++j) {
+            printf("%02X", crcTable[tblIdx]);
+            ++tblIdx;
         }
+
         if (i != 0xFF) {
             printf(", ");
         }
-        if ((crc_width / 8U) <= 2U) {
-            if (table_idx % (crc_width / 8U * 8U) == 0U) {
+
+        if ((width / 8U) <= 2U) {
+            if (tblIdx % (width / 8U * 8U) == 0U) {
                 printf("\r\n");
             }
-        }
-        else {
-            if (table_idx % (crc_width / 8U * 4U) == 0U) {
+        } else {
+            if (tblIdx % (width / 8U * 4U) == 0U) {
                 printf("\r\n");
             }
         }
     }
-    /* tables --------------------------------------------------------------*/
-    /*! OUT: print table generated in console ------------------------------*/
 
-    /* memory free ---------------------------------------------------------*/
-    /* free poly memory space ----------------------------------------------*/
+    // GC... =================================================================
     free(poly_);
-    poly_ = NULL;
-
     free(poly__);
-    poly__ = NULL;
-    /* free poly memory space ----------------------------------------------*/
-
-    /* free table memory space ---------------------------------------------*/
-    free(crc_table);
-    crc_table = NULL;
-    /* free table memory space ---------------------------------------------*/
-
-    /* free crc memory space -----------------------------------------------*/
-    free(crc_);
-    crc_ = NULL;
-    /* free crc memory space -----------------------------------------------*/
-    /* memory free ---------------------------------------------------------*/
-
-    return;
+    free(crcTable);
+    free(crcIter);
 }
-/* generate the crc-byte-table ---------------------------------------------*/

@@ -7,22 +7,27 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#ifndef HEAP_SORT_H_
-#define HEAP_SORT_H_
+#ifndef CRC16_MAXIM_H_
+#define CRC16_MAXIM_H_
 
 //============================================================================
-#include "heap_sort_port.h"
+#include "crc_port.h"
 
 //============================================================================
-typedef bool (*HeapSortCmp)(void *a, void *b);
+// name       : CRC16_MAXIM
+// poly       : 0x8005
+// reversePoly: 0xA001
+// init       : 0x0000
+// refIn      : true
+// refOut     : true
+// xorOut     : 0xFFFF
+#define INIT_CRC16_MAXIM   0x0000
+#define XOROUT_CRC16_MAXIM 0xFFFF
 
-//============================================================================
-void HeapSort_heapSortRecursive(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
+uint16_t CRCIter_crc16_maxim(uint16_t prev,
+                             uint8_t ch);
 
-void HeapSort_heapSortIterative(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
+uint16_t crc16_maxim(uint8_t *arr,
+                     uint16_t arrSize);
 
-#endif // HEAP_SORT_H_
+#endif // CRC16_MAXIM_H_

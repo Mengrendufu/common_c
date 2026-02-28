@@ -7,10 +7,10 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#ifndef INSERT_SORT_H_
-#define INSERT_SORT_H_
+#ifndef COMMON_C_TEST_H_
+#define COMMON_C_TEST_H_
 
 //============================================================================
-void InsertSort_insertSort(int *arr, int n);
+void CommonC_test(void);
 
-#endif // INSERT_SORT_H_
+#endif // COMMON_C_TEST_H_

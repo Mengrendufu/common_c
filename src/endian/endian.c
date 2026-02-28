@@ -7,10 +7,10 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#ifndef INSERT_SORT_H_
-#define INSERT_SORT_H_
+#include "endian.h"
 
 //============================================================================
-void InsertSort_insertSort(int *arr, int n);
-
-#endif // INSERT_SORT_H_
+bool isLittleEndian(void) {
+    static uint16_t SNMTT_ROM u16 = 0x0001;
+    return (*((uint8_t *)(&u16))) ? true : false;
+}

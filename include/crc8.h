@@ -7,22 +7,26 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#ifndef HEAP_SORT_H_
-#define HEAP_SORT_H_
+#ifndef CRC8_H_
+#define CRC8_H_
 
 //============================================================================
-#include "heap_sort_port.h"
+#include "crc_port.h"
 
 //============================================================================
-typedef bool (*HeapSortCmp)(void *a, void *b);
+// poly       : 0x07
+// reversePoly: 0xE0
+// init       : 0x00
+// refIn      : false
+// refOut     : false
+// xorOut     : 0x00
+#define INIT_CRC8   0x00
+#define XOROUT_CRC8 0x00
 
-//============================================================================
-void HeapSort_heapSortRecursive(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
+uint8_t CRCIter_crc8(uint8_t prev,
+                     uint8_t ch);
 
-void HeapSort_heapSortIterative(void *arr, uint16_t n,
-                                uint8_t size,
-                                HeapSortCmp cmpCb);
+uint8_t crc8(uint8_t *arr,
+             uint16_t arrSize);
 
-#endif // HEAP_SORT_H_
+#endif // CRC8_H_

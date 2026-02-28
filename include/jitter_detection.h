@@ -1,83 +1,78 @@
-#ifndef jitter_detection_h_
-#define jitter_detection_h_
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
+#ifndef JITTER_DETECTION_H_
+#define JITTER_DETECTION_H_
 
-/* class propotype ---------------------------------------------------------*/
-typedef struct {
-    volatile uint8_t jitter_continue_cnt;
-} JitterCtrl;
-/* class propotype ---------------------------------------------------------*/
+//============================================================================
+#include "jitter_detection_port.h"
 
-/* model options -----------------------------------------------------------*/
-/* directions --------------------------------------------------------------*/
+//! @brief
+//! @cond INTERNAL
+
+#ifndef JITTER_CTR_SIZE
+    #define JITTER_CTR_SIZE 2
+#endif // JITTER_CTR_SIZE
+
+#if (JITTER_CTR_SIZE == 1)
+    typedef int8_t JitterCtrType;
+#elif (JITTER_CTR_SIZE == 2)
+    typedef int16_t JitterCtrType;
+#elif (JITTER_CTR_SIZE == 4)
+    typedef int32_t JitterCtrType;
+#elif (JITTER_CTR_SIZE == 8)
+    typedef int64_t JitterCtrType;
+#endif // JITTER_CTR_SIZE
+
+//! @endcond
+
+//============================================================================
 enum JitterDirection {
     JITTER_DIRECTION_UP,
     JITTER_DIRECTION_DOWN,
-    JITTER_DIRECTION_NONE  /* both */
+    JITTER_DIRECTION_NONE // Both.
 };
-/* directions --------------------------------------------------------------*/
 
-/* continuous detection options --------------------------------------------*/
+//............................................................................
 enum JitterRetreadOpt {
     JITTER_RETREAT_DISABLE,
     JITTER_RETREAT_ENABLE,
 };
-/* continuous detection options --------------------------------------------*/
-/* model options -----------------------------------------------------------*/
 
-/* handlers ----------------------------------------------------------------*/
-/* clear -------------------------------------------------------------------*/
+//............................................................................
+typedef struct {
+    volatile JitterCtrType jitterCnt;
+} JitterCtrl;
+
+//============================================================================
 void JitterCtrl_init(JitterCtrl *me);
-/* clear -------------------------------------------------------------------*/
 
-/*****************************************************************************
-    \brief detect continuous +-changes, and +-big_changes
-    \note all not periodical, need to init the JitterCtrl manully
-        after jitter happen
-*****************************************************************************/
+//............................................................................
+bool Jitter_detection_up(JitterCtrl *me,
+                         JitterCtrType base, JitterCtrType target,
+                         JitterCtrType margin, JitterCtrType asynMargin,
+                         JitterCtrType jitterThres,
+                         bool fallEnable);
 
-/* direction: + only -------------------------------------------------------*/
-uint8_t Jitter_detection_up(
-    JitterCtrl *me,
-    uint16_t detect_base,
-    uint16_t detect_target,
-    uint8_t detect_thresh,
-    uint8_t jitter_continue_thresh_times,
-    uint8_t retreat,
-    uint8_t big_jitter);
-/* direction: + only -------------------------------------------------------*/
+//............................................................................
+bool Jitter_detection_down(JitterCtrl *me,
+                           JitterCtrType base, JitterCtrType target,
+                           JitterCtrType margin, JitterCtrType asynMargin,
+                           JitterCtrType jitterThres,
+                           bool fallEnable);
 
-/* direction: - only -------------------------------------------------------*/
-uint8_t Jitter_detection_down(
-    JitterCtrl *me,
-    uint16_t detect_base,
-    uint16_t detect_target,
-    uint8_t detect_thresh,
-    uint8_t jitter_continue_thresh_times,
-    uint8_t retreat,
-    uint8_t big_jitter);
-/* direction: - only -------------------------------------------------------*/
+//............................................................................
+bool jitter_detection(JitterCtrl *me,
+                      enum JitterDirection direction,
+                      JitterCtrType base, JitterCtrType target,
+                      JitterCtrType margin, JitterCtrType asynMargin,
+                      JitterCtrType jitterThres,
+                      bool fallEnable);
 
-/* application handler -----------------------------------------------------*/
-uint8_t jitter_detection(
-    JitterCtrl *me,
-    uint16_t detect_base,
-    uint16_t detect_target,
-    uint8_t jitter_direction,
-    uint8_t detect_thresh,
-    uint8_t jitter_continue_thresh_times,
-    uint8_t retreat,
-    uint8_t big_jitter);
-/* application handler -----------------------------------------------------*/
-/* handlers ----------------------------------------------------------------*/
-
-/* test area ---------------------------------------------------------------*/
-/* data window size --------------------------------------------------------*/
-#define TEST_SIZE  10U
-/* data window size --------------------------------------------------------*/
-
-/* test handlers -----------------------------------------------------------*/
-void jitter_test_handler(void);
-/* test handlers -----------------------------------------------------------*/
-/* test area ---------------------------------------------------------------*/
-
-#endif  /* jitter_detection_h_ */
+#endif // JITTER_DETECTION_H_

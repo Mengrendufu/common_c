@@ -1,52 +1,51 @@
-#ifndef queue_h_
-#define queue_h_
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
+#ifndef QUEUE_H_
+#define QUEUE_H_
 
-/*=====================================
-*     Here, we always store the data in the void *sto which might cause some
-* wasted.
-*
-*     If we want to store bytes in the the *ring, then the size of
-* sizeof(void *) - sizeof(unsigned char) is wasted.
-*====================================*/
+//============================================================================
+#include "queue_port.h"
 
-/* class -------------------------------------------------------------------*/
+//============================================================================
+#ifndef QUEUE_CTRL_SIZE
+    #define QUEUE_CTRL_SIZE 2
+#endif // QUEUE_CTRL_SIZE
+
+#if (QUEUE_CTRL_SIZE == 1)
+    typedef uint8_t QueueCtr;
+#elif (QUEUE_CTRL_SIZE == 2)
+    typedef uint16_t QueueCtr;
+#elif (QUEUE_CTRL_SIZE == 4)
+    typedef uint32_t QueueCtr;
+#elif (QUEUE_CTRL_SIZE == 8)
+    typedef uint64_t QueueCtr;
+#endif // QUEUE_CTRL_SIZE
+
+//============================================================================
 typedef struct CircularQueue {
-    void **ring;  /*! **ring --> void *queue_sto[QUEUE_SIZE] */
-    uint16_t head;
-    uint16_t tail;
-    uint16_t qLen;
-    uint16_t nUsed;
-    uint16_t nMin;
+    void **ring;
+    QueueCtr head;
+    QueueCtr tail;
+    QueueCtr qLen;
+    QueueCtr nUsed;
+    QueueCtr nMin;
 } CircularQueue;
-/* class -------------------------------------------------------------------*/
 
-/* look up macros ----------------------------------------------------------*/
-#define CircularQueue_empty(me_) \
-    (((me_)->nUsed == 0U) ? (1U) : (0U))
-#define CircularQueue_full(me_) \
-    (((me_)->nUsed >= (me_)->qLen) ? (1U) : (0U))
-/* look up macros ----------------------------------------------------------*/
+//............................................................................
+#define CircularQueue_empty(me_) ((me_)->nUsed == 0U)
+#define CircularQueue_full(me_) ((me_)->nUsed >= (me_)->qLen)
 
-/* constructor -------------------------------------------------------------*/
-void CircularQueue_init(
-    CircularQueue *me,
-    void *qSto,
-    uint16_t qLen);
-/* constructor -------------------------------------------------------------*/
-
-/* circular put ------------------------------------------------------------*/
-void CircularQueue_put(CircularQueue *me, void *elemPut);
-/* circular put ------------------------------------------------------------*/
-
-/* none-empty getter -------------------------------------------------------*/
+//============================================================================
+void CircularQueue_init(CircularQueue *me,
+                        void *qSto, uint16_t qLen);
+bool CircularQueue_put(CircularQueue *me, void *elemPut);
 void *CircularQueue_get(CircularQueue *me);
-/* none-empty getter -------------------------------------------------------*/
 
-/* test area ---------------------------------------------------------------*/
-#define CIRQUEUE_TEST_DATA_SIZE   23U
-#define CIRQUEUE_TEST_QUEUE_SIZE  20U
-typedef uint32_t CirQueueTest_Type;
-void CircularQueue_test(void);
-/* test area ---------------------------------------------------------------*/
-
-#endif  /* queue_h_ */
+#endif // QUEUE_H_

@@ -1,75 +1,37 @@
-#include <stdio.h>
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
 #include "widths.h"
 
-/* count the types ---------------------------------------------------------*/
-SystemDataTypeLengths system_data_type_lengths_get(void) {
-    SystemDataTypeLengths lengths;
+//============================================================================
+WidthInfo Width_getTypeLength(void) {
+    WidthInfo widthInfo;
 
-    /* Arrays to calculate the size difference between consecutive elements */
-    unsigned char          uc_arr[2];
-    unsigned short int     ush_arr[2];
-    unsigned int           ui_arr[2];
-    unsigned long int      ul_arr[2];
-    unsigned long long int ull_arr[2];
-    void *                 vp_arr[2];
-    float                  flt_arr[2];
-    double                 fdb_arr[2];
-    long double            fldb_arr[2];
+    unsigned char          uc_  [2];
+    unsigned short int     ush_ [2];
+    unsigned int           ui_  [2];
+    unsigned long int      ul_  [2];
+    unsigned long long int ull_ [2];
+    void *                 vp_  [2];
+    float                  flt_ [2];
+    double                 fdb_ [2];
+    long double            fldb_[2];
 
-    /* Assign the calculated sizes to the struct members */
-    lengths.uc   = PTR_DISTANCE_BYTES(&uc_arr[0],   &uc_arr[1]);
-    lengths.ush  = PTR_DISTANCE_BYTES(&ush_arr[0],  &ush_arr[1]);
-    lengths.ui   = PTR_DISTANCE_BYTES(&ui_arr[0],   &ui_arr[1]);
-    lengths.ul   = PTR_DISTANCE_BYTES(&ul_arr[0],   &ul_arr[1]);
-    lengths.ull  = PTR_DISTANCE_BYTES(&ull_arr[0],  &ull_arr[1]);
-    lengths.vp   = PTR_DISTANCE_BYTES(&vp_arr[0],   &vp_arr[1]);
-    lengths.flt  = PTR_DISTANCE_BYTES(&flt_arr[0],  &flt_arr[1]);
-    lengths.fdb  = PTR_DISTANCE_BYTES(&fdb_arr[0],  &fdb_arr[1]);
-    lengths.fldb = PTR_DISTANCE_BYTES(&fldb_arr[0], &fldb_arr[1]);
+    widthInfo.uc   = PTR_DISTANCE_BYTES(&uc_  [0],   &uc_[1]);
+    widthInfo.ush  = PTR_DISTANCE_BYTES(&ush_ [0],  &ush_[1]);
+    widthInfo.ui   = PTR_DISTANCE_BYTES(&ui_  [0],   &ui_[1]);
+    widthInfo.ul   = PTR_DISTANCE_BYTES(&ul_  [0],   &ul_[1]);
+    widthInfo.ull  = PTR_DISTANCE_BYTES(&ull_ [0],  &ull_[1]);
+    widthInfo.vp   = PTR_DISTANCE_BYTES(&vp_  [0],   &vp_[1]);
+    widthInfo.flt  = PTR_DISTANCE_BYTES(&flt_ [0],  &flt_[1]);
+    widthInfo.fdb  = PTR_DISTANCE_BYTES(&fdb_ [0],  &fdb_[1]);
+    widthInfo.fldb = PTR_DISTANCE_BYTES(&fldb_[0], &fldb_[1]);
 
-    return lengths;
+    return widthInfo;
 }
-/* count the types ---------------------------------------------------------*/
-
-/* test area ---------------------------------------------------------------*/
-void system_lengths_test(void) {
-    SystemDataTypeLengths system_lengths = system_data_type_lengths_get();
-    printf(
-        "\r\n"
-        "SYSTEM's sizeof(TYPE):\r\n"
-        "-----------------------|----------------------\r\n"
-        "        TYPE           |        SIZE\r\n"
-        "-----------------------|----------------------\r\n"
-        "unsigned char          | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "unsigned short int     | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "unsigned int           | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "unsigned long int      | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "unsigned long long int | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "pointer                | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "float                  | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "double                 | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "long double            | %2d BYTE ==> %3d bits\r\n"
-        "-----------------------|----------------------\r\n"
-        "\r\n",
-
-        system_lengths.uc,   8 * system_lengths.uc,
-        system_lengths.ush,  8 * system_lengths.ush,
-        system_lengths.ui,   8 * system_lengths.ui,
-        system_lengths.ul,   8 * system_lengths.ul,
-        system_lengths.ull,  8 * system_lengths.ull,
-        system_lengths.vp,   8 * system_lengths.vp,
-        system_lengths.flt,  8 * system_lengths.flt,
-        system_lengths.fdb,  8 * system_lengths.fdb,
-        system_lengths.fldb, 8 * system_lengths.fldb);
-
-    return;
-}
-/* test area ---------------------------------------------------------------*/

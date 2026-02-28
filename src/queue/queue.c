@@ -1,14 +1,17 @@
-/* dependencies ------------------------------------------------------------*/
-#include "stdint.h"
-#include "stdio.h"
+//============================================================================
+// Copyright (C) 2026 Sunny Matato
+//
+// This program is free software. It comes without any warranty, to
+// the extent permitted by applicable law. You can redistribute it
+// and/or modify it under the terms of the Do What The Fuck You Want
+// To Public License, Version 2, as published by Sam Hocevar.
+// See http://www.wtfpl.net/ for more details.
+//============================================================================
 #include "queue.h"
-/* dependencies ------------------------------------------------------------*/
 
-/* constructor -------------------------------------------------------------*/
-void CircularQueue_init(
-    CircularQueue *me,
-    void *qSto,
-    uint16_t qLen)
+//============================================================================
+void CircularQueue_init(CircularQueue *me,
+                        void *qSto, uint16_t qLen)
 {
     me->ring  = qSto;
     me->head  = 0U;
@@ -16,112 +19,30 @@ void CircularQueue_init(
     me->qLen  = qLen;
     me->nUsed = 0U;
     me->nMin  = me->qLen;
-    return;
 }
-/* constructor -------------------------------------------------------------*/
 
-/* circular put ------------------------------------------------------------*/
-void CircularQueue_put(CircularQueue *me, void *elemPut) {
-    /* Element input (type erasure) ----------------------------------------*/
-    me->ring[me->head] = elemPut;
-    /* Element input (type erasure) ----------------------------------------*/
-
-    /* count adjust --------------------------------------------------------*/
-    if (me->head == 0U) {
-        me->head = me->qLen;
-    }
-    --me->head;
-    /* count adjust --------------------------------------------------------*/
-
-    if (me->nUsed < me->qLen) {
-        /* not full --------------------------------------------------------*/
+//............................................................................
+bool CircularQueue_put(CircularQueue *me, void *elemPut) {
+    if (me->nUsed < me->qLen) { // Not full...
+        me->ring[me->head] = elemPut;
+        if (me->head == 0) me->head = me->qLen;
+        --me->head;
         ++me->nUsed;
-        /* not full --------------------------------------------------------*/
-
-        /* minimal content update */
-        if (me->nMin > me->qLen - me->nUsed) {
+        if (me->nMin > me->qLen - me->nUsed) { // Update nMin.
             me->nMin = me->qLen - me->nUsed;
         }
+        return true;
+    } else { // Full...
+        return false;
     }
-    else {
-        /* overflow, wrap around -------------------------------------------*/
-        if (me->tail == 0U) {
-            me->tail = me->qLen;
-        }
-        --me->tail;
-        /* overflow, wrap around -------------------------------------------*/
-    }
-
-    return;
 }
-/* circular put ------------------------------------------------------------*/
 
-/* none-empty getter -------------------------------------------------------*/
+//............................................................................
 void *CircularQueue_get(CircularQueue *me) {
-    /* Element output (type erasure) ---------------------------------------*/
-    void *elemGet = me->ring[me->tail];
-    /* Element output (type erasure) ---------------------------------------*/
-
-    /* wrap around ---------------------------------------------------------*/
-    if (me->tail == 0U) {
-        me->tail = me->qLen;
-    }
-    /* wrap around ---------------------------------------------------------*/
+    void *elemGet;
+    elemGet = me->ring[me->tail];
+    if (me->tail == 0) me->tail = me->qLen;
     --me->tail;
     --me->nUsed;
-
     return elemGet;
 }
-/* none-empty getter -------------------------------------------------------*/
-
-/* test area ---------------------------------------------------------------*/
-void CircularQueue_test(void) {
-    printf("Circular queue test ---------------------------------------\r\n");
-
-    /* circular queue ------------------------------------------------------*/
-    CircularQueue queue_test;
-    void *queue_sto_test[CIRQUEUE_TEST_QUEUE_SIZE];
-    CircularQueue_init(
-        &queue_test,
-        queue_sto_test,
-        CIRQUEUE_TEST_QUEUE_SIZE);
-    /* circular queue ------------------------------------------------------*/
-
-    /* test data -----------------------------------------------------------*/
-    CirQueueTest_Type test_data[CIRQUEUE_TEST_DATA_SIZE];
-    for (uint8_t i = 0U; i < CIRQUEUE_TEST_DATA_SIZE; ++i) {
-        test_data[i] = i;
-    }
-    /* test data -----------------------------------------------------------*/
-
-    /* en queue ------------------------------------------------------------*/
-    for (uint8_t i = 0U; i < CIRQUEUE_TEST_DATA_SIZE; ++i) {
-        CircularQueue_put(
-            &queue_test,
-            (void *)((uint64_t)(test_data[i] + 3)));
-    }
-    /* en queue ------------------------------------------------------------*/
-
-    /* queue minimal content */
-    printf("minimal content of queue: %d\r\n", queue_test.nMin);
-
-    /* sto -----------------------------------------------------------------*/
-    printf("queue sto: \r\n");
-    for (uint8_t i = 0; i < CIRQUEUE_TEST_QUEUE_SIZE; ++i) {
-        printf("%llu ", (uint64_t)(queue_sto_test[i]));
-    }
-    printf("\r\n");
-    /* sto -----------------------------------------------------------------*/
-
-    /* de queue & print out ------------------------------------------------*/
-    void *tmp;
-    while (!CircularQueue_empty(&queue_test)) {
-        tmp = CircularQueue_get(&queue_test);
-        printf("%llu ", (uint64_t)tmp);
-    }
-    printf("\r\n");
-    /* de queue & print out ------------------------------------------------*/
-
-    return;
-}
-/* test area ---------------------------------------------------------------*/
