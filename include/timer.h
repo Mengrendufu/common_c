@@ -14,18 +14,18 @@
 #include "timer_port.h"
 
 //============================================================================
-typedef void (*timeoutCallback)(void);
+typedef void (*TimeoutCallback)(void);
 
 //============================================================================
 typedef struct Timer {
     uint8_t hour;
     uint8_t min;
     uint8_t sec;
-    timeoutCallback tmCb;
+    TimeoutCallback tmCb;
 } Timer;
 
 //============================================================================
-void Timer_ctor(Timer *me, timeoutCallback cb);
+void Timer_ctor(Timer *me, TimeoutCallback cb);
 void Timer_set(Timer *me,
                uint8_t hour, uint8_t min, uint8_t sec);
 bool Timer_is_clear(Timer *me);
@@ -33,3 +33,4 @@ void Timer_turn_off(Timer *me);
 void Timer_countdown(Timer *me);
 
 #endif // TIMER_H_
+

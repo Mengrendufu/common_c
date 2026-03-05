@@ -10,7 +10,7 @@
 #include "timer.h"
 
 //============================================================================
-void Timer_ctor(Timer *me, timeoutCallback cb) {
+void Timer_ctor(Timer *me, TimeoutCallback cb) {
     me->tmCb = cb;
 }
 
@@ -79,3 +79,4 @@ void Timer_countdown(Timer *me) {
         }
     }
 }
+

@@ -152,7 +152,7 @@ void CRC_tableGen(uint8_t width,
 
     // Generating output. ====================================================
     // Titles...
-    printf("%-16s%-16s%-16s\r\n", "WIDTH", "POLY", "REFIN");
+    printf("%-16s%-16s%-16s\n", "WIDTH", "POLY", "REFIN");
     printf("%-16d", width);
     printf("0x");
     for (uint8_t i = 0U; i < width / 8U; ++i) {
@@ -167,9 +167,16 @@ void CRC_tableGen(uint8_t width,
     else {
         printf("%-16s", "FALSE");
     }
-    printf("\r\n");
+    printf("\n\n");
 
     // Tables...
+    if (width == 8) {
+        printf("static uint8_t crcTbl[256] = {\n    ");
+    } else if (width == 16) {
+        printf("static uint16_t crcTbl[256] = {\n    ");
+    } else if (width == 32) {
+        printf("static uint32_t crcTbl[256] = {\n    ");
+    }
     tblIdx = 0U;
     for (uint16_t i = 0U; i <= 0xFF; ++i) {
         printf("0x");
@@ -184,14 +191,15 @@ void CRC_tableGen(uint8_t width,
 
         if ((width / 8U) <= 2U) {
             if (tblIdx % (width / 8U * 8U) == 0U) {
-                printf("\r\n");
+                printf("\n    ");
             }
         } else {
             if (tblIdx % (width / 8U * 4U) == 0U) {
-                printf("\r\n");
+                printf("\n    ");
             }
         }
     }
+    printf("\r};\n");
 
     // GC... =================================================================
     free(poly_);

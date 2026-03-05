@@ -28,6 +28,7 @@
 #include "heap_sort.h"
 #include "linklist.h"
 #include "timer.h"
+#include "is_prime.h"
 
 //============================================================================
 #define NAME_SIZE 32
@@ -109,19 +110,13 @@ static void CRC_test(void) {
 
     //........................................................................
     uint8_t crcRes_crc8 = crc8(crcStream, CRC_STREAM_LEN);
-    uint8_t crcRes_crc8_maxim = crc8_maxim(crcStream,
-                                           CRC_STREAM_LEN);
-    uint16_t crcRes_crc16_ccitt_false =
-                                    crc16_ccitt_false(crcStream,
-                                                      CRC_STREAM_LEN);
-    uint16_t crcRes_crc16_ccitt = crc16_ccitt(crcStream,
-                                              CRC_STREAM_LEN);
-    uint16_t crcRes_crc16_maxim = crc16_maxim(crcStream,
-                                              CRC_STREAM_LEN);
-    uint32_t crcRes_crc32 = crc32(crcStream,
-                                  CRC_STREAM_LEN);
-    uint32_t crcRes_crc32_mpeg2 = crc32_mpeg2(crcStream,
-                                              CRC_STREAM_LEN);
+    uint8_t crcRes_crc8_maxim = crc8_maxim(crcStream, CRC_STREAM_LEN);
+    uint16_t crcRes_crc16_ccitt_false = crc16_ccitt_false(crcStream,
+                                                          CRC_STREAM_LEN);
+    uint16_t crcRes_crc16_ccitt = crc16_ccitt(crcStream, CRC_STREAM_LEN);
+    uint16_t crcRes_crc16_maxim = crc16_maxim(crcStream, CRC_STREAM_LEN);
+    uint32_t crcRes_crc32 = crc32(crcStream, CRC_STREAM_LEN);
+    uint32_t crcRes_crc32_mpeg2 = crc32_mpeg2(crcStream, CRC_STREAM_LEN);
 
     //........................................................................
     printf("crc8: 0x%02X\n", crcRes_crc8);
@@ -165,13 +160,11 @@ static void HashTable_test(void);
 static void HashTable_test(void) {
     HashTable *ht = HashTable_create();
 
-    HashTable_insert(ht,
-                     KEY_INT,
+    HashTable_insert(ht, KEY_INT,
                      VOID_CAST(98532500), VOID_CAST(2333));
     HashTable_print(ht);
 
-    HashTable_insert(ht,
-                     KEY_STR,
+    HashTable_insert(ht, KEY_STR,
                      VOID_CAST("SunnyMatato"), VOID_CAST(666));
     HashTable_print(ht);
 }
@@ -258,8 +251,7 @@ static void Pool_Queue_test(void) {
     // Queue...
     CircularQueue queue;
     void *queueSto[QUEUE_SIZE];
-    CircularQueue_init(&queue,
-                       queueSto, SM_ARR_SIZE(queueSto));
+    CircularQueue_init(&queue, queueSto, SM_ARR_SIZE(queueSto));
 
     //........................................................................
     printf("StaticPoolStart --> StaticPoolEnd:\n");
@@ -337,31 +329,31 @@ typedef struct {
 } Student;
 #define STUDENT_NUM 8
 
-static void Print_students(ListNode *lt);
-static void Print_students(ListNode *lt) {
+static void Print_students(ListNode *sLt);
+static void Print_students(ListNode *sLt) {
     printf("%-32s -- %5s -- %5s\n", "Name", "Age", "Grade");
-    while (lt) {
-        Student *s = container_of(lt, Student, link);
+    while (sLt) {
+        Student *s = container_of(sLt, Student, link);
         printf("%-32s -- %5d -- %5d\n",
                s->name, s->age, s->grade);
-        lt = lt->next;
+        sLt = sLt->next;
     }
 }
 
 //............................................................................
-static bool Student_gradeAssendingCmp(void *ltLeft, void *ltRight);
-static bool Student_gradeAssendingCmp(void *ltLeft, void *ltRight) {
-    Student *sLeft  = container_of(ltLeft,  Student, link);
-    Student *sRight = container_of(ltRight, Student, link);
+static bool Student_gradeAssendingCmp(void *sLtLeft, void *sLtRight);
+static bool Student_gradeAssendingCmp(void *sLtLeft, void *sLtRight) {
+    Student *sLeft  = container_of(sLtLeft,  Student, link);
+    Student *sRight = container_of(sLtRight, Student, link);
     if (sLeft->grade <= sRight->grade) return true;
     else                               return false;
 }
 
 //............................................................................
-static bool Student_ageAssendingCmp(void *ltLeft, void *ltRight);
-static bool Student_ageAssendingCmp(void *ltLeft, void *ltRight) {
-    Student *sLeft  = container_of(ltLeft,  Student, link);
-    Student *sRight = container_of(ltRight, Student, link);
+static bool Student_ageAssendingCmp(void *sLtLeft, void *sLtRight);
+static bool Student_ageAssendingCmp(void *sLtLeft, void *sLtRight) {
+    Student *sLeft  = container_of(sLtLeft,  Student, link);
+    Student *sRight = container_of(sLtRight, Student, link);
     if (sLeft->age >= sRight->age) return true;
     else                           return false;
 }
@@ -403,24 +395,22 @@ static void LinkList_test(void) {
             students[i].link.next = (ListNode *)0;
         }
     }
-    ListNode *lt = &students[0].link; // Head of list.
+    ListNode *sLt = &students[0].link; // Head of list.
 
     // Initial print.
-    printf("\nInitial:\n"); Print_students(lt);
+    printf("\nInitial:\n"); Print_students(sLt);
 
     // MergeSort: grade.
-    lt = LinkList_mergeSort(lt,
-                            (MergeSortCmp)&Student_gradeAssendingCmp);
-    printf("\nAfter Grade sort:\n"); Print_students(lt);
+    sLt = LinkList_mergeSort(sLt, (MergeSortCmp)&Student_gradeAssendingCmp);
+    printf("\nAfter Grade sort:\n"); Print_students(sLt);
 
     // MergeSort: age.
-    lt = LinkList_mergeSort(lt,
-                            (MergeSortCmp)&Student_ageAssendingCmp);
-    printf("\nAfter age sort:\n"); Print_students(lt);
+    sLt = LinkList_mergeSort(sLt, (MergeSortCmp)&Student_ageAssendingCmp);
+    printf("\nAfter age sort:\n"); Print_students(sLt);
 
     // LinkList reverse.
-    lt = LinkList_reverse(lt);
-    printf("\nAfter reverse:\n"); Print_students(lt);
+    sLt = LinkList_reverse(sLt);
+    printf("\nAfter reverse:\n"); Print_students(sLt);
 }
 
 //============================================================================
@@ -461,41 +451,60 @@ static void Timer_test(void) {
     printf("Timer test completed.\n");
 }
 
+// Math. =====================================================================
+void Math_prime_test(void) {
+    printf("\nPrime test:================================================\n");
+
+    uint32_t count = 0;
+    for (uint64_t n = 1; n <= 100; n++) {
+        if (isPrime(n)) {
+            printf("%2llu ", n);
+            count++;
+            if (count % 10 == 0) printf("\n");
+        }
+    }
+    printf("\nTotal primes from 1 to 100: %u\n", count);
+}
+
 //============================================================================
 void CommonC_test(void) {
     // crc. ==================================================================
-    printf("\nCRCTableGen:========================================\n");
+    printf("\nCRCTableGen:================================================\n");
     CRC_TableGen_test();
 
     // crc8. .................................................................
-    printf("\nCRC test:===========================================\n");
+    printf("\nCRC test:===================================================\n");
     CRC_test();
 
     //========================================================================
-    printf("\nendian test:========================================\n");
+    printf("\nendian test:================================================\n");
     EndianTest();
 
     //========================================================================
-    printf("\nHashTable test:=====================================\n");
+    printf("\nHashTable test:=============================================\n");
     HashTable_test();
 
     //========================================================================
-    printf("\nJitter test:========================================\n");
+    printf("\nJitter test:===============================================\n");
     JitterDetection_test();
 
     //========================================================================
-    printf("\nPoolQueue test:=====================================\n");
+    printf("\nPoolQueue test:============================================\n");
     Pool_Queue_test();
 
     //========================================================================
-    printf("\nGeneric HeapSort test: =============================\n");
+    printf("\nGeneric HeapSort test: ====================================\n");
     GenericHeapSort_test();
 
     //========================================================================
-    printf("\nLinkList test: =====================================\n");
+    printf("\nLinkList test: ============================================\n");
     LinkList_test();
 
     //========================================================================
-    printf("\nTimer test: ========================================\n");
+    printf("\nTimer test: ===============================================\n");
     Timer_test();
+
+    //========================================================================
+    printf("\nMath Prime test: ==========================================\n");
+    Math_prime_test();
 }
