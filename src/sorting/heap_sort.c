@@ -10,8 +10,7 @@
 #include "heap_sort.h"
 
 //============================================================================
-static void SM_swap(void *a, void *b, size_t size)
-{
+static void SM_swap(void *a, void *b, uint16_t size) {
     uint8_t *a_ = (uint8_t *)a;
     uint8_t *b_ = (uint8_t *)b;
     uint8_t tmp;
