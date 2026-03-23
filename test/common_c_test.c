@@ -286,6 +286,13 @@ static void Pool_Queue_test(void) {
 
         StaticPool_put(&staticPool, (void *)dataBlk);
     }
+
+    //========================================================================
+    DataBaseType *anyBlock = (DataBaseType *)StaticPool_get(&staticPool);
+    printf("\nspoolStart: 0x%p, poolEnd: 0x%p\n"
+           "anyBlock: 0x%p\n",
+           staticPool.start, staticPool.end,
+           anyBlock);
 }
 
 //============================================================================
