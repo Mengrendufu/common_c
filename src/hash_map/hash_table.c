@@ -10,6 +10,16 @@
 #include "hash_table.h"
 
 //============================================================================
+static char *HashTable_strdup(const char *key) {
+    size_t key_size = strlen(key) + 1;
+    char *copy = malloc(key_size);
+
+    if (copy) memcpy(copy, key, key_size);
+
+    return copy;
+}
+
+//============================================================================
 static unsigned long int hash_int(int key, size_t capacity) {
     if (key < 0) key = -key;
     return key % capacity;
@@ -44,7 +54,7 @@ static HashNode *HashTable_createNode(HashNode_KeyType type,
     node->value = value;
     node->next = (HashNode *)0;
     if (type == KEY_INT) node->key = key;
-    else                 node->key = strdup((char *)key);
+    else                 node->key = HashTable_strdup((char *)key);
     return node;
 }
 
