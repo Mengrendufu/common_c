@@ -7,8 +7,8 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#ifndef ENDIAN_H_
-#define ENDIAN_H_
+#ifndef SM_ENDIAN_H_
+#define SM_ENDIAN_H_
 
 //============================================================================
 #include "endian_port.h"
@@ -30,4 +30,4 @@ bool isLittleEndian(void);
     ((uint64_t)SWAP_32(((uint64_t)(x)) & 0xFFFFFFFFULL) << 32)               \
 )
 
-#endif // ENDIAN_H_
+#endif // SM_ENDIAN_H_

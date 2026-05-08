@@ -7,7 +7,7 @@
 // To Public License, Version 2, as published by Sam Hocevar.
 // See http://www.wtfpl.net/ for more details.
 //============================================================================
-#include "endian.h"
+#include "sm_endian.h"
 
 //============================================================================
 bool isLittleEndian(void) {
