@@ -20,7 +20,7 @@
 #include "crc16_maxim.h"
 #include "crc32.h"
 #include "crc32_mpeg2.h"
-#include "endian.h"
+#include "sm_endian.h"
 #include "hash_table.h"
 #include "jitter_detection.h"
 #include "queue.h"
@@ -149,8 +149,8 @@ static void EndianTest(void) {
 
     uint64_t localVar_u64 = 0x123456789ABCDEFF;
     uint64_t cvtVar_u64   = SWAP_64(localVar_u64);
-    printf("localVar_u64: 0x%016llX ===> cvtVar_u64: 0x%016llX\n",
-           localVar_u64, cvtVar_u64);
+    printf("localVar_u64: 0x%016lX ===> cvtVar_u64: 0x%016lX\n",
+           (unsigned long)localVar_u64, (unsigned long)cvtVar_u64);
 }
 
 //============================================================================
@@ -287,7 +287,7 @@ static void Pool_Queue_test(void) {
     printf("\nspoolStart: 0x%p, poolEnd: 0x%p\n"
            "anyBlock: 0x%p\n",
            staticPool.start, staticPool.end,
-           anyBlock);
+           (void *)anyBlock);
 }
 
 //============================================================================
