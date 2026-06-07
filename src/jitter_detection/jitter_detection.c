@@ -10,106 +10,133 @@
 #include "jitter_detection.h"
 
 //============================================================================
-void JitterCtrl_init(JitterCtrl *me) {
-    me->jitterCnt = 0U;
-}
-
-//............................................................................
-bool Jitter_detection_up(JitterCtrl *me,
-                         JitterCtrType base, JitterCtrType target,
-                         JitterCtrType margin, JitterCtrType asynMargin,
-                         JitterCtrType jitterThres,
-                         bool fallEnable)
+void JitterCtrl_setCtr(JitterCtrl *me,
+                       JitterCtrType ctr, JitterCtrType interval)
 {
-    if (target > base) {
-        if (asynMargin != 0) {
-            if ((target - base) >= asynMargin) {
-                return true;
-            }
-        }
-
-        if ((target - base) >= margin) {
-            ++me->jitterCnt;
-            if (me->jitterCnt == jitterThres) {
-                return true;
-            }
-        } else {
-            if (fallEnable) {
-                JitterCtrl_init(me);
-            }
-        }
-    } else if (target == base) {
-        if (fallEnable) {
-            JitterCtrl_init(me);
-        }
-    }
-    return false;
+    me->ctr = ctr;
+    me->ctrLoad = me->ctr;
+    me->interval = interval;
 }
-
 //............................................................................
-bool Jitter_detection_down(JitterCtrl *me,
-                           JitterCtrType base, JitterCtrType target,
-                           JitterCtrType margin, JitterCtrType asynMargin,
-                           JitterCtrType jitterThres,
-                           bool fallEnable)
+void JitterCtrl_reload(JitterCtrl *me) {
+    me->ctr = me->ctrLoad;
+}
+//............................................................................
+void JitterCtrl_setBase(JitterCtrl *me, JitterCtrType base) {
+    me->base = base;
+}
+//............................................................................
+void JitterCtrl_setMargin(JitterCtrl *me,
+                          JitterCtrType margin, JitterCtrType asyncMargin)
 {
-    if (target < base) {
-        if (asynMargin != 0) {
-            if ((base - target) >= asynMargin) {
-                return true;
-            }
-        }
-        if ((base - target) >= margin ) {
-            ++me->jitterCnt;
-            if (me->jitterCnt == jitterThres) {
-                return true;
-            }
-        } else {
-            if (fallEnable) {
-                JitterCtrl_init(me);
-            }
-        }
-    } else if (target == base) {
-        if (fallEnable) {
-            JitterCtrl_init(me);
-        }
-    }
-    return false;
+    me->margin = margin;
+    me->asyncMargin = asyncMargin;
+}
+//............................................................................
+void JitterCtrl_setOpts(JitterCtrl *me,
+                        enum JitterDirection direct,
+                        bool isRetreatable)
+{
+    me->direct = direct;
+    me->enableRetreat = isRetreatable;
 }
 
 //============================================================================
-bool jitter_detection(JitterCtrl *me,
-                      enum JitterDirection direction,
-                      JitterCtrType base, JitterCtrType target,
-                      JitterCtrType margin, JitterCtrType asynMargin,
-                      JitterCtrType jitterThres,
-                      bool fallEnable)
-{
-    bool result;
-    result = false;
-    if (direction == JITTER_DIRECTION_UP) {
-        result = Jitter_detection_up(me,
-                                     base, target,
-                                     margin, asynMargin,
-                                     jitterThres,
-                                     fallEnable);
-    } else if (direction == JITTER_DIRECTION_DOWN) {
-        result = Jitter_detection_down(me,
-                                       base, target,
-                                       margin, asynMargin,
-                                       jitterThres,
-                                       fallEnable);
-    } else if (direction == JITTER_DIRECTION_NONE) {
-        result = Jitter_detection_up(me,
-                                     base, target,
-                                     margin, asynMargin,
-                                     jitterThres,
-                                     fallEnable)
-                 | Jitter_detection_down(me,
-                                         base, target,
-                                         margin, asynMargin,
-                                         jitterThres,
-                                         fallEnable);
+static bool Jitter_isAsyncUp(JitterCtrl *me, JitterCtrType target) {
+    if (me->base >= target) {
+        return false;
+    } else {
+        if (me->asyncMargin == 0) {
+            return false;
+        } else {
+            return (target - me->base >= me->asyncMargin);
+        }
     }
-    return result;
+}
+//............................................................................
+static bool Jitter_isUp(JitterCtrl *me, JitterCtrType target) {
+    if (me->base >= target) {
+        return false;
+    } else {
+        if (me->margin == 0) {
+            return false;
+        } else {
+            return (target - me->base >= me->margin);
+        }
+    }
+}
+//............................................................................
+static bool Jitter_isAsyncDown(JitterCtrl *me, JitterCtrType target) {
+    if (me->base <= target) {
+        return false;
+    } else {
+        if (me->asyncMargin == 0) {
+            return false;
+        } else {
+            return (me->base - target >= me->asyncMargin);
+        }
+    }
+}
+//............................................................................
+static bool Jitter_isDown(JitterCtrl *me, JitterCtrType target) {
+    if (me->base <= target) {
+        return false;
+    } else {
+        if (me->margin == 0) {
+            return false;
+        } else {
+            return (me->base - target >= me->margin);
+        }
+    }
+}
+//............................................................................
+bool Jitter_monitor(JitterCtrl *me, JitterCtrType target) {
+    bool asyncCon, norCon;
+
+    switch (me->direct) {
+        case JITTER_DIRECTION_UP: {
+            asyncCon = Jitter_isAsyncUp(me, target);
+            norCon = Jitter_isUp(me, target);
+            break;
+        }
+        case JITTER_DIRECTION_DOWN: {
+            asyncCon = Jitter_isAsyncDown(me, target);
+            norCon = Jitter_isDown(me, target);
+            break;
+        }
+        case JITTER_DIRECTION_NONE: {
+            asyncCon = Jitter_isAsyncUp(me, target) ||
+                    Jitter_isAsyncDown(me, target);
+            norCon = Jitter_isUp(me, target) || Jitter_isDown(me, target);
+            break;
+        }
+        default: {
+            asyncCon = false;
+            norCon = false;
+            break;
+        }
+    }
+
+    if (asyncCon) {
+        if (me->interval > 0) {
+            me->ctr = me->interval;
+        }
+        return true;
+    } else if (norCon) {
+        if (me->ctr > 0) {
+            --me->ctr;
+            if (me->ctr == 0) {
+                if (me->interval > 0) {
+                    me->ctr = me->interval;
+                }
+                return true;
+            }
+        }
+    } else {
+        if (me->enableRetreat) {
+            me->ctr = me->ctrLoad;
+        }
+    }
+
+    return false;
 }

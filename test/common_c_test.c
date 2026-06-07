@@ -198,26 +198,21 @@ static JitterCtrType jitterStream[JITTER_LEN] = {
 static JitterCtrl jitterInst;
 static void JitterDetection_test(void);
 static void JitterDetection_test(void) {
-    JitterCtrl_init(&jitterInst);
-    JitterCtrType base_ = jitterStream[0];
+    // init... ---------------------------------------------------------------
+    JitterCtrl_setCtr(&jitterInst, 3, 3);
+    JitterCtrl_setBase(&jitterInst, jitterStream[0]);
+    JitterCtrl_setMargin(&jitterInst, 3, 5);
+    JitterCtrl_setOpts(&jitterInst, JITTER_DIRECTION_NONE, true);
     for (uint16_t i = 0; i < JITTER_LEN; ++i) {
-        if (
-            jitter_detection(&jitterInst,
-                             JITTER_DIRECTION_NONE,
-                             base_, jitterStream[i],
-                             3, 5,
-                             3,
-                             true)
-        ) {
+        if (Jitter_monitor(&jitterInst, jitterStream[i])) {
             if (i < JITTER_LEN - 1) {
                 printf("Base %02d Jit here: stream[%02d]: %02d --> ",
-                       base_, i, jitterStream[i]);
+                       jitterInst.base, i, jitterStream[i]);
             } else {
                 printf("Base %02d Jit here: stream[%02d]: %02d",
-                       base_, i, jitterStream[i]);
+                       jitterInst.base, i, jitterStream[i]);
             }
-            base_ = jitterStream[i];
-            JitterCtrl_init(&jitterInst);
+            JitterCtrl_setBase(&jitterInst, jitterStream[i]);
         } else {
             if (i < JITTER_LEN - 1) {
                 printf("%02d --> ", jitterStream[i]);
@@ -310,12 +305,12 @@ static void GenericHeapSort_test(void) {
 
 #if (HEAP_SORT_USE_RECURSIVE == 1) // Recursive usage.
     printf("Recursive sorting...\n");
-    HeapSort_heapSortRecursive((void **)testArr, HEAP_SORT_ARR_SIZE,
+    HeapSort_heapSortRecursive((void *)testArr, HEAP_SORT_ARR_SIZE,
                                sizeof(HeapSortArrType),
                                (HeapSortCmp)&GenericHeapSort_cmp);
 #else // Iterative usage.
     printf("Iterative sorting...\n");
-    HeapSort_heapSortIterative((void **)testArr, HEAP_SORT_ARR_SIZE,
+    HeapSort_heapSortIterative((void *)testArr, HEAP_SORT_ARR_SIZE,
                                sizeof(HeapSortArrType),
                                (HeapSortCmp)&GenericHeapSort_cmp);
 #endif // Recursive or iterative.
@@ -463,11 +458,13 @@ void Math_prime_test(void) {
     printf("\nPrime test:================================================\n");
 
     uint32_t count = 0;
-    for (uint64_t n = 1; n <= 100; n++) {
+    for (uint32_t n = 1; n <= 100; n++) {
         if (isPrime(n)) {
-            printf("%2llu ", n);
-            count++;
-            if (count % 10 == 0) printf("\n");
+            printf("%2u ", n);
+            ++count;
+            if (count % 10 == 0) {
+                printf("\n");
+            }
         }
     }
     printf("\nTotal primes from 1 to 100: %u\n", count);
@@ -476,19 +473,19 @@ void Math_prime_test(void) {
 //============================================================================
 void CommonC_test(void) {
     // crc. ==================================================================
-    printf("\nCRCTableGen:================================================\n");
+    printf("\nCRCTableGen:===============================================\n");
     CRC_TableGen_test();
 
     // crc8. .................................................................
-    printf("\nCRC test:===================================================\n");
+    printf("\nCRC test:==================================================\n");
     CRC_test();
 
     //========================================================================
-    printf("\nendian test:================================================\n");
+    printf("\nendian test:===============================================\n");
     EndianTest();
 
     //========================================================================
-    printf("\nHashTable test:=============================================\n");
+    printf("\nHashTable test:============================================\n");
     HashTable_test();
 
     //========================================================================

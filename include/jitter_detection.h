@@ -39,40 +39,37 @@ enum JitterDirection {
     JITTER_DIRECTION_NONE // Both.
 };
 
-//............................................................................
-enum JitterRetreadOpt {
-    JITTER_RETREAT_DISABLE,
-    JITTER_RETREAT_ENABLE,
-};
-
-//............................................................................
+//============================================================================
 typedef struct {
-    volatile JitterCtrType jitterCnt;
+    volatile JitterCtrType ctr;
+    JitterCtrType ctrLoad;
+    JitterCtrType interval;
+    JitterCtrType base;
+
+    // should be >= 0 ...
+    JitterCtrType margin;
+    JitterCtrType asyncMargin;
+
+    enum JitterDirection direct;
+    bool enableRetreat;
 } JitterCtrl;
 
 //============================================================================
-void JitterCtrl_init(JitterCtrl *me);
-
+void JitterCtrl_setCtr(JitterCtrl *me,
+                       JitterCtrType ctr, JitterCtrType interval);
 //............................................................................
-bool Jitter_detection_up(JitterCtrl *me,
-                         JitterCtrType base, JitterCtrType target,
-                         JitterCtrType margin, JitterCtrType asynMargin,
-                         JitterCtrType jitterThres,
-                         bool fallEnable);
-
+void JitterCtrl_reload(JitterCtrl *me);
 //............................................................................
-bool Jitter_detection_down(JitterCtrl *me,
-                           JitterCtrType base, JitterCtrType target,
-                           JitterCtrType margin, JitterCtrType asynMargin,
-                           JitterCtrType jitterThres,
-                           bool fallEnable);
-
+void JitterCtrl_setBase(JitterCtrl *me, JitterCtrType base);
 //............................................................................
-bool jitter_detection(JitterCtrl *me,
-                      enum JitterDirection direction,
-                      JitterCtrType base, JitterCtrType target,
-                      JitterCtrType margin, JitterCtrType asynMargin,
-                      JitterCtrType jitterThres,
-                      bool fallEnable);
+void JitterCtrl_setMargin(JitterCtrl *me,
+                          JitterCtrType margin, JitterCtrType asyncMargin);
+//............................................................................
+void JitterCtrl_setOpts(JitterCtrl *me,
+                        enum JitterDirection direct,
+                        bool isRetreatable);
+
+//============================================================================
+bool Jitter_monitor(JitterCtrl *me, JitterCtrType target);
 
 #endif // JITTER_DETECTION_H_

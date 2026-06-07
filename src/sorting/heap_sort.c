@@ -14,8 +14,9 @@ static void SM_swap(void *a, void *b, uint16_t size) {
     uint8_t *a_ = (uint8_t *)a;
     uint8_t *b_ = (uint8_t *)b;
     uint8_t tmp;
-    while (size--) {
+    while (size) {
         tmp = *a_; *a_++ = *b_; *b_++ = tmp;
+        --size;
     }
 }
 
@@ -24,26 +25,27 @@ static void HeapSort_heapifyRecursive(void *arr, uint8_t size,
                                       uint16_t heapRange, uint16_t parent,
                                       HeapSortCmp cmpCb)
 {
+    uint8_t *arr_ = (uint8_t *)arr;
     uint16_t largest = parent;          // default.
     uint16_t lchild  = 2 * parent + 1;  // lchild.
     uint16_t rchild  = 2 * parent + 2;  // rchild.
 
     // lchild exists and bigger than current parent.
     if (
-        (lchild < heapRange) && cmpCb(arr + lchild*size, arr + largest*size)
+        (lchild < heapRange) && cmpCb(arr_ + lchild*size, arr_ + largest*size)
     ) {
         largest = lchild;
     }
     // rchild exists and bigger than current parent.
     if (
-        (rchild < heapRange) && cmpCb(arr + rchild*size, arr + largest*size)
+        (rchild < heapRange) && cmpCb(arr_ + rchild*size, arr_ + largest*size)
     ) {
         largest = rchild;
     }
 
     // make sure the parent is the largest.
     if (largest != parent) {
-        SM_swap(arr + parent*size, arr + largest*size, size);
+        SM_swap(arr_ + parent*size, arr_ + largest*size, size);
         // recursive heapify.
         HeapSort_heapifyRecursive(arr, size,
                                   heapRange, largest,
@@ -56,16 +58,18 @@ void HeapSort_heapSortRecursive(void *arr, uint16_t n,
                                 uint8_t size,
                                 HeapSortCmp cmpCb)
 {
+    uint8_t *arr_ = (uint8_t *)arr;
+
     // max heap built for each parent node.
     for (int parent = n / 2 - 1; parent >= 0; --parent) {
-        HeapSort_heapifyRecursive(arr, size,
+        HeapSort_heapifyRecursive(arr_, size,
                                   n, parent,
                                   cmpCb);
     }
 
     // swap & sort.
     for (int heapRange = n - 1; heapRange > 0; --heapRange) {
-        SM_swap(arr + 0*size, arr + heapRange*size, size);
+        SM_swap(arr_ + 0*size, arr_ + heapRange*size, size);
         HeapSort_heapifyRecursive(arr, size,
                                   heapRange, 0,
                                   cmpCb);
@@ -77,6 +81,8 @@ static void HeapSort_heapifyIterative(void *arr, uint8_t size,
                                       uint16_t heapRange, uint16_t parent,
                                       HeapSortCmp cmpCb)
 {
+    uint8_t *arr_ = (uint8_t *)arr;
+
     while (parent < heapRange) {
         uint16_t largest = parent;
         uint16_t lchild  = 2 * parent + 1;
@@ -84,20 +90,20 @@ static void HeapSort_heapifyIterative(void *arr, uint8_t size,
         // lchild exists and bigger than current parent.
         if (
             (lchild < heapRange)
-            && cmpCb(arr + lchild*size, arr + largest*size)
+            && cmpCb(arr_ + lchild*size, arr_ + largest*size)
         ) {
             largest = lchild;
         }
         // rchild exists and bigger than current parent.
         if (
             (rchild < heapRange)
-            && cmpCb(arr + rchild*size, arr + largest*size)
+            && cmpCb(arr_ + rchild*size, arr_ + largest*size)
         ) {
             largest = rchild;
         }
         // make sure the parent is the largest.
         if (largest != parent) {
-            SM_swap(arr + parent*size, arr + largest*size, size);
+            SM_swap(arr_ + parent*size, arr_ + largest*size, size);
             parent = largest;
         } else {
             break; // done.
@@ -110,6 +116,8 @@ void HeapSort_heapSortIterative(void *arr, uint16_t n,
                                 uint8_t size,
                                 HeapSortCmp cmpCb)
 {
+    uint8_t *arr_ = (uint8_t *)arr;
+
     // max heap built for each parent node.
     for (int parent = n / 2 - 1; parent >= 0; --parent) {
         HeapSort_heapifyIterative(arr, size,
@@ -118,7 +126,7 @@ void HeapSort_heapSortIterative(void *arr, uint16_t n,
     }
     // swap & sort.
     for (int heapRange = n - 1; heapRange > 0; --heapRange) {
-        SM_swap(arr + 0*size, arr + heapRange*size, size);
+        SM_swap(arr_ + 0*size, arr_ + heapRange*size, size);
         HeapSort_heapifyIterative(arr, size,
                                   heapRange, 0,
                                   cmpCb);
