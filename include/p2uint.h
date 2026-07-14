@@ -28,13 +28,13 @@
 
 //============================================================================
 #ifndef offsetof
-    #define offsetof(type_, member_)                                         \
-                    ((size_t)(&(((type_ *)0)->member_)))
-#endif // offsetof
+#define offsetof(type_, member_) \
+    ((size_t)(&(((type_ *)0)->member_)))
+#endif // ndef offsetof
 
 #ifndef container_of
-    #define container_of(ptr_, type_, member_)                               \
-                    ((type_ *)(((char *)(ptr_ )) - offsetof(type_, member_)))
-#endif // container_of
+#define container_of(ptr_, type_, member_) \
+    ((type_ *)(((char *)(ptr_ )) - offsetof(type_, member_)))
+#endif // ndef container_of
 
 #endif // P2UINT_H_
