@@ -31,16 +31,16 @@
 //============================================================================
 typedef struct CircularQueue {
     void **ring;
+    QueueCtr end;
     QueueCtr head;
     QueueCtr tail;
-    QueueCtr qLen;
     QueueCtr nUsed;
     QueueCtr nMin;
 } CircularQueue;
 
 //............................................................................
 #define CircularQueue_empty(me_) ((me_)->nUsed == 0U)
-#define CircularQueue_full(me_) ((me_)->nUsed >= (me_)->qLen)
+#define CircularQueue_full(me_) ((me_)->nUsed > (me_)->end)
 
 //============================================================================
 void CircularQueue_init(CircularQueue *me,
